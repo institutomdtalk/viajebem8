@@ -1,943 +1,2300 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MD Talk — Sala de Espera</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<p>Pharmacy & Medical Emergencies — English for Travelers</p>
 <style>
   :root {
-    --navy:       #0B1D3A;
-    --navy-deep:  #050D1A;
-    --navy-mid:   #0F2645;
-    --navy-light: #163158;
-    --gold:       #C4A45A;
-    --gold-light: #D4BA7A;
-    --gold-pale:  #E8D9B0;
-    --cream:      rgba(255,255,255,.88);
-    --muted:      rgba(255,255,255,.42);
-    --snake-head: #C4A45A;
-    --snake-body: #D4BA7A;
-    --snake-tail: rgba(196,164,90,0.4);
-    --cell:       44px;
+    --bg: #FAFAF7;
+    --bg-warm: #F4F2ED;
+    --bg-card: #FFFFFF;
+    --ink: #1B2428;
+    --ink-soft: #3D4F56;
+    --ink-muted: #7A8C93;
+    --teal: #1A6B5A;
+    --teal-deep: #0E4D3F;
+    --teal-light: #2B9A7E;
+    --teal-bg: #EEF7F4;
+    --coral: #C0392B;
+    --coral-soft: #D4614E;
+    --coral-bg: #FDF0EE;
+    --amber: #B8860B;
+    --amber-bg: #FDF8EC;
+    --blue: #2C5F8A;
+    --blue-bg: #EDF2F8;
+    --plum: #6B3A6B;
+    --plum-bg: #F5EDF5;
+    --border: #E2DDD6;
+    --border-light: #EDEBE6;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Libre Franklin', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+    --radius: 10px;
+    --shadow-sm: 0 1px 3px rgba(27,36,40,0.04);
+    --shadow-md: 0 4px 16px rgba(27,36,40,0.06);
+    --shadow-lg: 0 8px 30px rgba(27,36,40,0.08);
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
 
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--navy-deep);
-    font-family: 'Raleway', sans-serif;
-    overflow: hidden;
-    color: var(--cream);
-  }
-
-  /* ─── DOT GRID BACKGROUND ─── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: radial-gradient(circle, rgba(196,164,90,.18) 1px, transparent 1px);
-    background-size: 28px 28px;
-    pointer-events: none;
-    z-index: 0;
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 16.5px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ─── AMBIENT GLOW ─── */
-  body::after {
-    content: '';
-    position: fixed;
-    top: -20%; left: 50%; transform: translateX(-50%);
-    width: 800px; height: 600px;
-    background: radial-gradient(ellipse, rgba(196,164,90,.06) 0%, transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ─── FLOATING GEO ELEMENTS ─── */
-  .geo {
-    position: fixed;
-    pointer-events: none;
-    z-index: 0;
-    animation: geoFloat 8s ease-in-out infinite;
-  }
-  .geo-ring {
-    width: 120px; height: 120px;
-    border: 1px solid rgba(196,164,90,.12);
-    border-radius: 50%;
-    top: 8%; right: 6%;
-    animation-duration: 11s;
-  }
-  .geo-ring-2 {
-    width: 60px; height: 60px;
-    border: 1px solid rgba(196,164,90,.18);
-    border-radius: 50%;
-    bottom: 14%; left: 4%;
-    animation-duration: 9s;
-    animation-delay: -3s;
-  }
-  .geo-diamond {
-    width: 18px; height: 18px;
-    border: 1px solid rgba(196,164,90,.3);
-    transform: rotate(45deg);
-    top: 50%; right: 4%;
-    animation-duration: 13s;
-    animation-delay: -5s;
-  }
-  .geo-line {
-    width: 1px; height: 80px;
-    background: linear-gradient(to bottom, transparent, rgba(196,164,90,.25), transparent);
-    top: 20%; left: 8%;
-    animation-duration: 7s;
-    animation-delay: -2s;
-  }
-  @keyframes geoFloat {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-14px); }
-  }
-  .geo-diamond { animation: geoPulse 13s ease-in-out infinite; }
-  @keyframes geoPulse {
-    0%, 100% { transform: rotate(45deg) scale(1);   opacity: .3; }
-    50%       { transform: rotate(45deg) scale(1.3); opacity: .7; }
-  }
-
-  /* ─── LAYOUT ─── */
-  .wrapper {
-    position: relative; z-index: 1;
-    width: 100vw; height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    padding: 0 0 0 0;
-  }
-
-  /* ─── HEADER ─── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 48px 20px;
-    border-bottom: 1px solid rgba(196,164,90,.12);
-  }
-  .brand {
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .brand-overline {
-    font-family: 'Raleway', sans-serif;
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: .25em;
-    text-transform: uppercase;
-    color: var(--gold);
-  }
-  .brand-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 400;
-    letter-spacing: .08em;
-    color: var(--cream);
-    line-height: 1;
-  }
-  .brand-name em {
-    font-style: italic;
-    color: var(--gold);
-  }
-
-  .header-right {
-    text-align: right;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .header-tag {
-    font-size: 9px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 500;
-  }
-  .header-score-label {
-    font-size: 11px;
-    letter-spacing: .12em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-  .header-score-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 32px;
-    font-weight: 300;
-    color: var(--gold-light);
-    line-height: 1;
-    transition: all .2s;
-  }
-
-  /* ─── MAIN ARENA ─── */
-  .arena {
+  /* ══════════ HERO ══════════ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
-    flex: 1;
     overflow: hidden;
+    background: linear-gradient(155deg, #0E2A23 0%, #143D33 30%, #1A5446 60%, #0E2A23 100%);
   }
 
-  #canvas-wrap {
-    position: relative;
-  }
-
-  canvas {
-    display: block;
-    border: 1px solid rgba(196,164,90,.2);
-    box-shadow:
-      0 0 60px rgba(196,164,90,.06),
-      inset 0 0 80px rgba(5,13,26,.6);
-    background: rgba(5,13,26,.55);
-    backdrop-filter: blur(2px);
-  }
-
-  /* ─── WORD FLOATING LABELS (rendered on canvas overlay) ─── */
-  .word-label {
-    position: absolute;
-    font-family: 'Raleway', sans-serif;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: .15em;
-    text-transform: uppercase;
-    color: var(--gold-light);
-    pointer-events: none;
-    transition: opacity .4s, transform .3s;
-    white-space: nowrap;
-    text-shadow: 0 0 12px rgba(196,164,90,.4);
-  }
-  .word-label.eaten {
-    animation: wordEaten .6s forwards;
-  }
-  @keyframes wordEaten {
-    0%   { opacity: 1; transform: scale(1.4);    color: #fff; }
-    100% { opacity: 0; transform: scale(2) translateY(-20px); }
-  }
-
-  /* ─── OVERLAY SCREENS ─── */
-  .overlay {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 20px;
-    background: rgba(5,13,26,.85);
-    backdrop-filter: blur(6px);
-    z-index: 10;
-    transition: opacity .5s;
-  }
-  .overlay.hidden { opacity: 0; pointer-events: none; }
-
-  .overlay-overline {
-    font-size: 9px;
-    letter-spacing: .3em;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 500;
-  }
-  .overlay-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(36px, 5vw, 60px);
-    font-weight: 300;
-    color: var(--cream);
-    text-align: center;
-    line-height: 1.1;
-  }
-  .overlay-title em {
-    font-style: italic;
-    color: var(--gold);
-  }
-  .overlay-divider {
-    width: 60px; height: 1px;
-    background: var(--gold);
-    opacity: .5;
-  }
-  .overlay-sub {
-    font-size: 12px;
-    letter-spacing: .1em;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.8;
-  }
-  .overlay-score-display {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 64px;
-    font-weight: 300;
-    color: var(--gold-light);
-    line-height: 1;
-  }
-  .overlay-score-label {
-    font-size: 10px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: -12px;
-  }
-
-  .btn-start {
-    margin-top: 8px;
-    padding: 14px 48px;
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    font-family: 'Raleway', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: .25em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all .25s;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn-start::before {
+  .hero::before {
     content: '';
-    position: absolute; inset: 0;
-    background: var(--gold);
-    transform: translateX(-101%);
-    transition: transform .25s;
-    z-index: -1;
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 45%, rgba(43,154,126,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 75% 55%, rgba(26,107,90,0.08) 0%, transparent 50%);
+    z-index: 1;
   }
-  .btn-start:hover { color: var(--navy-deep); }
-  .btn-start:hover::before { transform: translateX(0); }
 
-  /* ─── GLOSSARY TICKER ─── */
-  .word-earned {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.8);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-style: italic;
-    color: var(--gold-light);
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='<a href="http://www.w3.org/2000/svg" class="redactor-autoparser-object">http://www.w3.org/2000/svg</a>'%3E%3Cpath d='M20 18h2v4h-2zM18 20v-2h4v2z' fill='%232B9A7E' fill-opacity='0.06'/%3E%3C/svg%3E");
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
     text-align: center;
-    pointer-events: none;
-    z-index: 20;
-    opacity: 0;
-    text-shadow: 0 0 30px rgba(196,164,90,.6);
-  }
-  .word-earned.show {
-    animation: wordPop .9s forwards;
-  }
-  @keyframes wordPop {
-    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-    20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-    70%  { opacity: 1; transform: translate(-50%, -50%) scale(1);   }
-    100% { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+    padding: 2rem;
+    max-width: 780px;
+    animation: heroIn 1.3s ease-out;
   }
 
-  /* ─── GLOSSARY SIDEBAR ─── */
-  .glossary {
-    position: fixed;
-    right: 32px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 60vh;
-    overflow: hidden;
-    z-index: 5;
-    width: 220px;
+  @keyframes heroIn {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .glossary-title {
-    font-size: 8px;
-    letter-spacing: .25em;
+
+  .hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(43,154,126,0.35);
+    background: rgba(43,154,126,0.08);
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 500;
-    margin-bottom: 4px;
-    opacity: .7;
-  }
-  .glossary-entry {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    opacity: 0;
-    transform: translateX(20px);
-    animation: slideIn .4s forwards;
-    border-left: 1px solid rgba(196,164,90,.25);
-    padding-left: 10px;
-  }
-  @keyframes slideIn {
-    to { opacity: 1; transform: translateX(0); }
-  }
-  .glossary-word {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 14px;
-    color: var(--gold-light);
-    font-style: italic;
-  }
-  .glossary-pt {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: .05em;
+    color: var(--teal-light);
+    border: 1px solid rgba(43,154,126,0.3);
+    padding: 0.45rem 1.4rem;
+    border-radius: 100px;
+    margin-bottom: 2.2rem;
+    background: rgba(43,154,126,0.06);
   }
 
-  /* ─── FOOTER ─── */
-  footer {
-    border-top: 1px solid rgba(196,164,90,.1);
-    padding: 14px 48px;
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 5.5vw, 4.5rem);
+    font-weight: 400;
+    color: #FAFAF7;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--teal-light);
+    font-weight: 300;
+  }
+
+  .hero-line {
+    width: 45px;
+    height: 1px;
+    background: var(--teal-light);
+    margin: 2rem auto;
+    opacity: 0.35;
+  }
+
+  .hero-sub {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: rgba(250,250,247,0.5);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .hero-scroll {
+    margin-top: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(250,250,247,0.3);
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  .hero-scroll svg { width: 16px; height: 16px; stroke: rgba(250,250,247,0.3); }
+  @keyframes pulse {
+    0%,100% { opacity: 0.4; transform: translateY(0); }
+    50% { opacity: 0.9; transform: translateY(5px); }
+  }
+
+  /* ══════════ NAV ══════════ */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,250,247,0.93);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+
+  .nav-links {
+    display: flex;
+    list-style: none;
+    white-space: nowrap;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 0.95rem 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+  .nav-links a:hover {
+    color: var(--teal);
+    border-bottom-color: var(--teal);
+  }
+  .nav-links a.emergency {
+    color: var(--coral-soft);
+  }
+  .nav-links a.emergency:hover {
+    color: var(--coral);
+    border-bottom-color: var(--coral);
+  }
+
+  /* ══════════ MAIN ══════════ */
+  .main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ══════════ SECTION ══════════ */
+  .section {
+    padding-top: 4.5rem;
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-body);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .section-tag.green { color: var(--teal); }
+  .section-tag.red { color: var(--coral); }
+  .section-tag.amber { color: var(--amber); }
+
+  .section-tag .n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: white;
+  }
+  .section-tag.green .n { background: var(--teal); }
+  .section-tag.red .n { background: var(--coral); }
+  .section-tag.amber .n { background: var(--amber); }
+
+  .section h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 0.4rem;
+  }
+
+  .section-sub {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--ink-muted);
+    font-weight: 300;
+    font-style: italic;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .section-intro {
+    font-size: 0.98rem;
+    color: var(--ink-soft);
+    line-height: 1.85;
+    margin-bottom: 2rem;
+    max-width: 740px;
+  }
+
+  /* ══════════ PHRASE CARDS ══════════ */
+  .group {
+    margin-bottom: 2.5rem;
+  }
+
+  .group-title {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 0.55rem;
+    transition: all 0.25s ease;
+  }
+  .card:hover {
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .card .en {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 0.2rem;
+  }
+
+  .card .pt {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  .note {
+    margin-top: 0.55rem;
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    line-height: 1.55;
+    border-left: 3px solid;
+  }
+  .note.green { color: var(--teal-deep); background: var(--teal-bg); border-color: var(--teal); }
+  .note.red { color: var(--coral); background: var(--coral-bg); border-color: var(--coral); }
+  .note.blue { color: var(--blue); background: var(--blue-bg); border-color: var(--blue); }
+  .note.amber { color: #8B6914; background: var(--amber-bg); border-color: var(--amber); }
+  .note.plum { color: var(--plum); background: var(--plum-bg); border-color: var(--plum); }
+
+  /* ══════════ DIALOGUE ══════════ */
+  .dialogue {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.8rem 2rem;
+    margin: 2rem 0 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dialogue.emergency-dialogue {
+    border-color: rgba(192,57,43,0.2);
+  }
+
+  .dialogue::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-light), var(--teal));
+  }
+  .dialogue.emergency-dialogue::before {
+    background: linear-gradient(90deg, var(--coral), var(--coral-soft), var(--coral));
+  }
+
+  .dialogue-label {
+    font-family: var(--font-body);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.25rem;
+  }
+  .dialogue.emergency-dialogue .dialogue-label { color: var(--coral); }
+
+  .dialogue-context {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-bottom: 1.4rem;
+  }
+
+  .line {
+    display: flex;
+    gap: 0.9rem;
+    margin-bottom: 0.9rem;
+    align-items: flex-start;
+  }
+
+  .avatar {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(to right, rgba(196,164,90,.04), transparent);
-  }
-  .footer-controls {
-    display: flex; gap: 24px;
-  }
-  .key-hint {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 10px;
-    letter-spacing: .12em;
-    color: var(--muted);
+    justify-content: center;
+    font-family: var(--font-body);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
+    margin-top: 2px;
   }
-  .key {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px;
-    border: 1px solid rgba(196,164,90,.3);
-    color: var(--gold);
-    font-size: 9px;
+  .avatar.you { background: var(--teal-bg); color: var(--teal); border: 1.5px solid rgba(26,107,90,0.2); }
+  .avatar.them { background: var(--blue-bg); color: var(--blue); border: 1.5px solid rgba(44,95,138,0.2); }
+  .avatar.doc { background: var(--coral-bg); color: var(--coral); border: 1.5px solid rgba(192,57,43,0.2); }
+  .avatar.op { background: var(--amber-bg); color: var(--amber); border: 1.5px solid rgba(184,134,11,0.2); }
+
+  .bubble { flex: 1; }
+  .bubble .en {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--ink);
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .bubble .pt {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    margin-top: 0.1rem;
+  }
+
+  /* ══════════ VOCAB GRID ══════════ */
+  .vocab {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.45rem;
+    margin: 1.5rem 0 2rem;
+  }
+
+  .vocab-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    transition: all 0.2s ease;
+  }
+  .vocab-item:hover { border-color: var(--border); box-shadow: var(--shadow-sm); }
+
+  .vocab-item .en {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .vocab-item .pt {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+  }
+
+  /* ══════════ SPECIAL BLOCKS ══════════ */
+  .block {
+    border-radius: 12px;
+    padding: 1.7rem 1.8rem;
+    margin: 2rem 0;
+    position: relative;
+    border: 1px solid;
+  }
+  .block::before {
+    font-size: 1.2rem;
+    position: absolute;
+    top: -0.7rem;
+    left: 1.4rem;
+    padding: 0 0.4rem;
+  }
+  .block h4 {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
     font-weight: 600;
-    border-radius: 3px;
-  }
-  .footer-level {
-    font-size: 10px;
-    letter-spacing: .15em;
-    color: var(--muted);
+    letter-spacing: 0.18em;
     text-transform: uppercase;
+    margin-bottom: 0.6rem;
   }
-  .footer-level span {
-    color: var(--gold);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-weight: 300;
+  .block p, .block li {
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+    line-height: 1.75;
   }
 
-  /* score pulse */
-  @keyframes scorePulse {
-    0%,100% { transform: scale(1); }
-    50%      { transform: scale(1.15); color: #fff; }
+  .block.cultural {
+    background: linear-gradient(135deg, var(--plum-bg), var(--bg));
+    border-color: rgba(107,58,107,0.12);
   }
-  .pulse { animation: scorePulse .3s ease; }
+  .block.cultural::before { content: '🌍'; background: var(--bg); }
+  .block.cultural h4 { color: var(--plum); }
+
+  .block.tip {
+    background: linear-gradient(135deg, var(--teal-bg), var(--bg));
+    border-color: rgba(26,107,90,0.15);
+  }
+  .block.tip::before { content: '💡'; background: var(--bg); }
+  .block.tip h4 { color: var(--teal); }
+
+  .block.alert {
+    background: linear-gradient(135deg, var(--coral-bg), var(--bg));
+    border-color: rgba(192,57,43,0.15);
+  }
+  .block.alert::before { content: '🚨'; background: var(--bg); }
+  .block.alert h4 { color: var(--coral); }
+
+  .block.warning {
+    background: linear-gradient(135deg, var(--amber-bg), var(--bg));
+    border-color: rgba(184,134,11,0.15);
+  }
+  .block.warning::before { content: '⚠️'; background: var(--bg); }
+  .block.warning h4 { color: var(--amber); }
+
+  /* ══════════ BODY DIAGRAM ══════════ */
+  .body-vocab-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.4rem;
+    margin: 1.5rem 0 2rem;
+  }
+
+  .body-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.55rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .body-item .emoji { font-size: 1rem; flex-shrink: 0; }
+  .body-item .text .en {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .body-item .text .pt {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    line-height: 1.3;
+  }
+
+  /* ══════════ EMERGENCY BANNER ══════════ */
+  .emergency-banner {
+    background: linear-gradient(135deg, #2D0A0A 0%, #4A1515 50%, #2D0A0A 100%);
+    padding: 3.5rem 2rem;
+    text-align: center;
+    margin-top: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .emergency-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='<a href="http://www.w3.org/2000/svg" class="redactor-autoparser-object">http://www.w3.org/2000/svg</a>'%3E%3Cpath d='M10 8h-1v4h1zm-1 0V7h2v1z' fill='%23C0392B' fill-opacity='0.08'/%3E%3C/svg%3E");
+  }
+  .emergency-banner .content { position: relative; z-index: 1; }
+  .emergency-banner h3 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: #FAE0DC;
+    margin-bottom: 0.5rem;
+  }
+  .emergency-banner p {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: rgba(250,224,220,0.5);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ══════════ SEPARATOR ══════════ */
+  .sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem 0 0;
+  }
+  .sep::before, .sep::after {
+    content: '';
+    flex: 1;
+    max-width: 100px;
+    height: 1px;
+    background: var(--border);
+  }
+  .sep .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    opacity: 0.4;
+  }
+
+  /* ══════════ FOOTER ══════════ */
+  .footer {
+    text-align: center;
+    padding: 3.5rem 2rem;
+    border-top: 1px solid var(--border-light);
+    margin-top: 3rem;
+  }
+  .footer-brand {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+  .footer-text {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+  }
+
+  /* ══════════ RESPONSIVE ══════════ */
+  @media (max-width: 768px) {
+    .main { padding: 0 1.2rem 4rem; }
+    .dialogue { padding: 1.4rem; }
+    .section { padding-top: 3.5rem; }
+    .vocab { grid-template-columns: 1fr; }
+    .body-vocab-section { grid-template-columns: 1fr 1fr; }
+    .nav-links a { padding: 0.85rem 0.8rem; font-size: 0.62rem; }
+  }
+
+  /* ══════════ ANIMATIONS ══════════ */
+  .fi { opacity: 0; transform: translateY(18px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .fi.v { opacity: 1; transform: translateY(0); }
 </style>
-</head>
-<body>
-
-<!-- Floating geometric decorations -->
-<div class="geo geo-ring"></div>
-<div class="geo geo-ring-2"></div>
-<div class="geo geo-diamond"></div>
-<div class="geo geo-line"></div>
-
-<!-- Word earned toast -->
-<div class="word-earned" id="wordToast"></div>
-
-<!-- Glossary sidebar -->
-<div class="glossary" id="glossary">
-  <div class="glossary-title">Vocabulário adquirido</div>
-</div>
-
-<div class="wrapper">
-  <!-- HEADER -->
-  <header>
-    <div class="brand">
-      <div class="brand-overline">Instituto MD Talk</div>
-      <div class="brand-name">MD <em>Talk</em></div>
+<!-- ════════════════ HERO ════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-icon">✚</div>
+    <div class="hero-badge">English for Travelers — Módulo Essencial</div>
+    <h1>Pharmacy &<br><em>Medical Emergencies</em></h1>
+    <div class="hero-line"></div>
+    <p class="hero-sub">
+      Farmácia, sintomas, primeiros socorros e pronto-socorro.<br>
+      Tudo o que você precisa saber para se cuidar em inglês — do Band-Aid ao 911.
+    </p>
+    <div class="hero-scroll">
+      Explore o módulo
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"></path></svg>
     </div>
-    <div class="header-right">
-      <div class="header-tag">Sala de Espera</div>
-      <div class="header-score-label">Score</div>
-      <div class="header-score-val" id="scoreDisplay">0</div>
-    </div>
-  </header>
+  </div>
+</section>
+<!-- ════════════════ NAV ════════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <ul class="nav-links">
+      <li><a href="#s1">A Farmácia</a></li>
+      <li><a href="#s2">Corpo & Sintomas</a></li>
+      <li><a href="#s3">Sem Receita</a></li>
+      <li><a href="#s4">Com Receita</a></li>
+      <li><a href="#s5">Alergias</a></li>
+      <li><a href="#s6">Dores</a></li>
+      <li><a href="#s7">Gripe & Resfriado</a></li>
+      <li><a href="#s8">Estômago</a></li>
+      <li><a href="#s9">Pele</a></li>
+      <li><a href="#s10">Olhos & Ouvidos</a></li>
+      <li><a href="#s11">Primeiros Socorros</a></li>
+      <li><a href="#s12">Crianças</a></li>
+      <li><a href="#s13" class="emergency">Urgent Care</a></li>
+      <li><a href="#s14" class="emergency">Emergências</a></li>
+      <li><a href="#s15" class="emergency">911</a></li>
+      <li><a href="#s16">Seguro & Custos</a></li>
+    </ul>
+  </div>
+</nav>
+<!-- ════════════════ MAIN ════════════════ -->
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p><main class="main"><p></p>
+<!-- ██████ SEÇÃO 1 ██████ -->
+<section class="section" id="s1">
+  <div class="section-tag green"><span class="n">1</span> Getting Oriented</div>
+  <h2>Entendendo a Farmácia no Exterior</h2>
+  <p class="section-sub">Como funciona, onde encontrar e o que esperar — antes de pedir qualquer coisa.</p>
 
-  <!-- ARENA -->
-  <div class="arena" id="arena">
-    <div id="canvas-wrap">
-      <canvas id="game"></canvas>
+  <p class="section-intro">
+    A farmácia no exterior é bastante diferente da brasileira. Nos Estados Unidos, as grandes redes como CVS, Walgreens e Rite Aid vendem de tudo — de remédios a chocolates e produtos de beleza. A parte farmacêutica fica no fundo da loja, com um balcão chamado <strong>pharmacy counter</strong>. Na Europa, as farmácias são mais tradicionais e identificadas pela cruz verde. Saber como funcionam é o primeiro passo.
+  </p>
+
+  <div class="group">
+    <div class="group-title">Encontrando uma farmácia</div>
+
+    <div class="card">
+      <div class="en">"Excuse me, is there a pharmacy nearby?"</div>
+      <div class="pt">Com licença, tem uma farmácia por perto?</div>
     </div>
 
-    <!-- START OVERLAY -->
-    <div class="overlay" id="overlayStart">
-      <div class="overlay-overline">Sala de Espera · MD Talk</div>
-      <div class="overlay-title">Enquanto você <em>aguarda</em>,<br>pratique Medical English</div>
-      <div class="overlay-divider"></div>
-      <div class="overlay-sub">
-        Guie a cobra pelo grid e colete<br>
-        termos clínicos em inglês<br>
-        <br>
-        <span style="color:var(--gold-pale); font-size:10px; letter-spacing:.15em">USE AS SETAS OU WASD PARA MOVER</span>
-      </div>
-      <button class="btn-start" id="btnStart">Iniciar</button>
+    <div class="card">
+      <div class="en">"Where is the nearest 24-hour pharmacy?"</div>
+      <div class="pt">Onde fica a farmácia 24 horas mais próxima?</div>
+      <div class="note blue"><strong>24-hour pharmacy</strong> ou <strong>all-night pharmacy</strong>. Nos EUA, nem toda CVS/Walgreens tem o balcão farmacêutico aberto 24h — muitas vezes a loja está aberta, mas o farmacêutico já foi embora.</div>
     </div>
 
-    <!-- GAME OVER OVERLAY -->
-    <div class="overlay hidden" id="overlayOver">
-      <div class="overlay-overline">Session Ended</div>
-      <div class="overlay-title"><em>Game</em> Over</div>
-      <div class="overlay-divider"></div>
-      <div class="overlay-score-display" id="finalScore">0</div>
-      <div class="overlay-score-label">termos coletados</div>
-      <div class="overlay-sub" id="lastWord"></div>
-      <button class="btn-start" id="btnRestart">Nova Sessão</button>
+    <div class="card">
+      <div class="en">"Is there a drugstore around here?"</div>
+      <div class="pt">Tem uma drogaria por aqui?</div>
+      <div class="note green"><strong>Pharmacy</strong> = o balcão farmacêutico. <strong>Drugstore</strong> = a loja inteira (que vende remédios e outros produtos). Nos EUA, os dois termos se misturam no dia a dia.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Does the hotel have a pharmacy or a first-aid kit?"</div>
+      <div class="pt">O hotel tem farmácia ou kit de primeiros socorros?</div>
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-controls">
-      <div class="key-hint"><div class="key">↑</div><div class="key">↓</div><div class="key">←</div><div class="key">→</div> mover</div>
-      <div class="key-hint"><div class="key" style="width:32px">P</div> pausar</div>
+  <div class="group">
+    <div class="group-title">Dentro da farmácia — orientando-se</div>
+
+    <div class="card">
+      <div class="en">"Where is the pharmacy counter?"</div>
+      <div class="pt">Onde fica o balcão da farmácia?</div>
     </div>
-    <div class="footer-level">Nível <span id="levelDisplay">I</span></div>
-  </footer>
+
+    <div class="card">
+      <div class="en">"I need to speak with the pharmacist."</div>
+      <div class="pt">Preciso falar com o farmacêutico.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Which aisle has the pain relievers / cold medicine / bandages?"</div>
+      <div class="pt">Em que corredor ficam os analgésicos / remédios para gripe / curativos?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can you recommend something for me, or do I need to see a doctor first?"</div>
+      <div class="pt">Você pode me recomendar algo ou preciso consultar um médico antes?</div>
+    </div>
+  </div>
+
+  <div class="block cultural">
+    <h4>Nota Cultural</h4>
+    <p>Na Europa (especialmente França, Itália e Espanha), farmacêuticos são muito consultivos — eles examinam, recomendam e muitas vezes resolvem problemas menores sem que você precise ir ao médico. Nos EUA, o farmacêutico é mais restrito: pode recomendar produtos de venda livre, mas para qualquer coisa mais séria vai sugerir que você procure um médico ou uma <strong>urgent care clinic</strong>.</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 2 ██████ -->
+<section class="section" id="s2">
+  <div class="section-tag green"><span class="n">2</span> Body & Symptoms</div>
+  <h2>Partes do Corpo e Sintomas</h2>
+  <p class="section-sub">O vocabulário essencial para descrever exatamente o que você está sentindo.</p>
+
+  <p class="section-intro">
+    Antes de pedir qualquer remédio, você precisa conseguir explicar o que sente. Esta seção é a base de todo o módulo — domine essas palavras e o resto fica muito mais fácil. Não precisa decorar tudo de uma vez; use como referência quando precisar.
+  </p>
+
+  <div class="group">
+    <div class="group-title">Partes do corpo — vocabulário essencial</div>
+  </div>
+
+  <div class="body-vocab-section">
+    <div class="body-item"><span class="emoji">🧠</span><div class="text"><div class="en">head</div><div class="pt">cabeça</div></div></div>
+    <div class="body-item"><span class="emoji">👁</span><div class="text"><div class="en">eye / eyes</div><div class="pt">olho / olhos</div></div></div>
+    <div class="body-item"><span class="emoji">👂</span><div class="text"><div class="en">ear / ears</div><div class="pt">ouvido / ouvidos</div></div></div>
+    <div class="body-item"><span class="emoji">👃</span><div class="text"><div class="en">nose</div><div class="pt">nariz</div></div></div>
+    <div class="body-item"><span class="emoji">👄</span><div class="text"><div class="en">mouth / throat</div><div class="pt">boca / garganta</div></div></div>
+    <div class="body-item"><span class="emoji">🦷</span><div class="text"><div class="en">tooth / teeth</div><div class="pt">dente / dentes</div></div></div>
+    <div class="body-item"><span class="emoji">🫁</span><div class="text"><div class="en">chest / lungs</div><div class="pt">peito / pulmões</div></div></div>
+    <div class="body-item"><span class="emoji">💪</span><div class="text"><div class="en">arm / shoulder</div><div class="pt">braço / ombro</div></div></div>
+    <div class="body-item"><span class="emoji">🤚</span><div class="text"><div class="en">hand / wrist / fingers</div><div class="pt">mão / pulso / dedos</div></div></div>
+    <div class="body-item"><span class="emoji">🫃</span><div class="text"><div class="en">stomach / abdomen</div><div class="pt">estômago / abdômen</div></div></div>
+    <div class="body-item"><span class="emoji">🦵</span><div class="text"><div class="en">leg / knee / ankle</div><div class="pt">perna / joelho / tornozelo</div></div></div>
+    <div class="body-item"><span class="emoji">🦶</span><div class="text"><div class="en">foot / toe</div><div class="pt">pé / dedo do pé</div></div></div>
+    <div class="body-item"><span class="emoji">🔙</span><div class="text"><div class="en">back / lower back</div><div class="pt">costas / lombar</div></div></div>
+    <div class="body-item"><span class="emoji">🦴</span><div class="text"><div class="en">neck / spine</div><div class="pt">pescoço / coluna</div></div></div>
+    <div class="body-item"><span class="emoji">🩸</span><div class="text"><div class="en">skin / blood</div><div class="pt">pele / sangue</div></div></div>
+    <div class="body-item"><span class="emoji">🫀</span><div class="text"><div class="en">heart</div><div class="pt">coração</div></div></div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Descrevendo a dor e os sintomas</div>
+
+    <div class="card">
+      <div class="en">"I have a sharp pain in my lower back."</div>
+      <div class="pt">Tenho uma dor aguda na lombar.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"It's a dull, constant ache."</div>
+      <div class="pt">É uma dor surda e constante.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"It comes and goes." / "It's been constant since yesterday."</div>
+      <div class="pt">Vai e volta. / Está constante desde ontem.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"It hurts when I move / breathe / swallow."</div>
+      <div class="pt">Dói quando eu me movimento / respiro / engulo.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"On a scale of one to ten, the pain is about a seven."</div>
+      <div class="pt">Numa escala de um a dez, a dor está em uns sete.</div>
+      <div class="note green">Profissionais de saúde nos EUA usam muito a <strong>pain scale (escala de dor)</strong> de 1 a 10. Esteja preparado para essa pergunta — é quase certa.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"It started about two days ago and it's getting worse."</div>
+      <div class="pt">Começou há uns dois dias e está piorando.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I also feel dizzy / nauseous / weak / feverish."</div>
+      <div class="pt">Também estou tonto(a) / enjoado(a) / fraco(a) / febril.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Vocabulário de sintomas</div>
+  </div>
+
+  <div class="vocab">
+    <div class="vocab-item"><div class="en">fever / high temperature</div><div class="pt">febre / temperatura alta</div></div>
+    <div class="vocab-item"><div class="en">chills</div><div class="pt">calafrios</div></div>
+    <div class="vocab-item"><div class="en">cough (dry / wet)</div><div class="pt">tosse (seca / com catarro)</div></div>
+    <div class="vocab-item"><div class="en">runny nose / stuffy nose</div><div class="pt">nariz escorrendo / entupido</div></div>
+    <div class="vocab-item"><div class="en">sore throat</div><div class="pt">dor de garganta</div></div>
+    <div class="vocab-item"><div class="en">headache / migraine</div><div class="pt">dor de cabeça / enxaqueca</div></div>
+    <div class="vocab-item"><div class="en">nausea / vomiting</div><div class="pt">náusea / vômito</div></div>
+    <div class="vocab-item"><div class="en">diarrhea / constipation</div><div class="pt">diarreia / constipação</div></div>
+    <div class="vocab-item"><div class="en">swelling / swollen</div><div class="pt">inchaço / inchado</div></div>
+    <div class="vocab-item"><div class="en">rash / hives</div><div class="pt">erupção / urticária</div></div>
+    <div class="vocab-item"><div class="en">bleeding</div><div class="pt">sangramento</div></div>
+    <div class="vocab-item"><div class="en">numbness / tingling</div><div class="pt">dormência / formigamento</div></div>
+    <div class="vocab-item"><div class="en">shortness of breath</div><div class="pt">falta de ar</div></div>
+    <div class="vocab-item"><div class="en">fatigue / exhaustion</div><div class="pt">fadiga / exaustão</div></div>
+    <div class="vocab-item"><div class="en">itching / itchy</div><div class="pt">coceira / coçando</div></div>
+    <div class="vocab-item"><div class="en">bruise</div><div class="pt">hematoma / roxo</div></div>
+  </div>
+
+  <div class="block tip">
+    <h4>Dica de Ouro</h4>
+    <p>Ao descrever um sintoma, use a estrutura: <strong>"I have…"</strong> (Eu tenho…) ou <strong>"I feel…"</strong> (Eu me sinto…) ou <strong>"My [parte do corpo] hurts"</strong> (Meu/minha [parte] está doendo). Essas três construções resolvem 90% das situações. Exemplo: <strong>"I have a headache and I feel nauseous."</strong> (Tenho dor de cabeça e estou com náusea.)</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 3 ██████ -->
+<section class="section" id="s3">
+  <div class="section-tag green"><span class="n">3</span> Over-the-Counter</div>
+  <h2>Medicamentos Sem Receita (OTC)</h2>
+  <p class="section-sub">O que você pode comprar livremente — e como pedir.</p>
+
+  <div class="group">
+    <div class="group-title">Pedindo recomendação ao farmacêutico</div>
+
+    <div class="card">
+      <div class="en">"I need something for a headache. What do you recommend?"</div>
+      <div class="pt">Preciso de algo para dor de cabeça. O que recomenda?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"What's the strongest over-the-counter painkiller you have?"</div>
+      <div class="pt">Qual é o analgésico sem receita mais forte que vocês têm?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Is there a generic version? It would be more affordable."</div>
+      <div class="pt">Tem versão genérica? Seria mais acessível.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"How often should I take this?" / "What's the recommended dosage?"</div>
+      <div class="pt">Com que frequência devo tomar? / Qual é a dosagem recomendada?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can I take this on an empty stomach?"</div>
+      <div class="pt">Posso tomar com o estômago vazio?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Are there any side effects I should know about?"</div>
+      <div class="pt">Tem algum efeito colateral que eu deva saber?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can I take this with [other medication]?"</div>
+      <div class="pt">Posso tomar junto com [outro medicamento]?</div>
+      <div class="note red">Essa pergunta é <strong>essencial</strong>. Interações medicamentosas podem ser perigosas. Sempre informe os outros remédios que está tomando.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Does this cause drowsiness? I need to drive."</div>
+      <div class="pt">Isso causa sonolência? Preciso dirigir.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Medicamentos comuns — nomes que você vai encontrar</div>
+  </div>
+
+  <div class="vocab">
+    <div class="vocab-item"><div class="en">ibuprofen (Advil, Motrin)</div><div class="pt">ibuprofeno — anti-inflamatório</div></div>
+    <div class="vocab-item"><div class="en">acetaminophen (Tylenol)</div><div class="pt">paracetamol — analgésico/antitérmico</div></div>
+    <div class="vocab-item"><div class="en">aspirin</div><div class="pt">aspirina</div></div>
+    <div class="vocab-item"><div class="en">antihistamine (Benadryl, Zyrtec)</div><div class="pt">antialérgico</div></div>
+    <div class="vocab-item"><div class="en">decongestant (Sudafed)</div><div class="pt">descongestionante</div></div>
+    <div class="vocab-item"><div class="en">cough suppressant</div><div class="pt">antitussígeno</div></div>
+    <div class="vocab-item"><div class="en">antacid (Tums, Pepto-Bismol)</div><div class="pt">antiácido</div></div>
+    <div class="vocab-item"><div class="en">laxative</div><div class="pt">laxante</div></div>
+    <div class="vocab-item"><div class="en">anti-diarrheal (Imodium)</div><div class="pt">antidiarreico</div></div>
+    <div class="vocab-item"><div class="en">hydrocortisone cream</div><div class="pt">creme de hidrocortisona</div></div>
+    <div class="vocab-item"><div class="en">antiseptic / rubbing alcohol</div><div class="pt">antisséptico / álcool</div></div>
+    <div class="vocab-item"><div class="en">eye drops / ear drops</div><div class="pt">colírio / gotas para ouvido</div></div>
+    <div class="vocab-item"><div class="en">saline nasal spray</div><div class="pt">spray nasal salino</div></div>
+    <div class="vocab-item"><div class="en">throat lozenges</div><div class="pt">pastilhas para garganta</div></div>
+    <div class="vocab-item"><div class="en">motion sickness pills</div><div class="pt">remédio para enjoo</div></div>
+    <div class="vocab-item"><div class="en">melatonin / sleep aid</div><div class="pt">melatonina / auxílio para dormir</div></div>
+  </div>
+
+  <div class="dialogue">
+    <div class="dialogue-label">Diálogo Prático</div>
+    <div class="dialogue-context">No balcão da farmácia — você precisa de algo para dor de cabeça forte</div>
+
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">Hi, I need something for a really bad headache. It's been going on since this morning.</div>
+        <div class="pt">Oi, preciso de algo para uma dor de cabeça muito forte. Está desde hoje de manhã.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">PH</div>
+      <div class="bubble">
+        <div class="en">I'm sorry to hear that. Are you taking any other medications right now?</div>
+        <div class="pt">Sinto muito. Está tomando algum outro medicamento no momento?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">Just a daily blood pressure medication.</div>
+        <div class="pt">Só um remédio diário para pressão.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">PH</div>
+      <div class="bubble">
+        <div class="en">In that case, I'd recommend acetaminophen — Tylenol. Ibuprofen can sometimes interact with blood pressure meds. Take two tablets every six hours, no more than eight in twenty-four hours.</div>
+        <div class="pt">Nesse caso, recomendo paracetamol — Tylenol. Ibuprofeno às vezes interage com remédios de pressão. Tome dois comprimidos a cada seis horas, no máximo oito em vinte e quatro horas.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">Can I take it on an empty stomach?</div>
+        <div class="pt">Posso tomar com o estômago vazio?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">PH</div>
+      <div class="bubble">
+        <div class="en">Yes, acetaminophen is fine on an empty stomach. If the headache persists for more than three days, I'd suggest seeing a doctor.</div>
+        <div class="pt">Sim, paracetamol pode ser tomado de estômago vazio. Se a dor persistir por mais de três dias, sugiro consultar um médico.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 4 ██████ -->
+<section class="section" id="s4">
+  <div class="section-tag green"><span class="n">4</span> Prescriptions</div>
+  <h2>Medicamentos Com Receita</h2>
+  <p class="section-sub">Como lidar com receitas estrangeiras e conseguir o que precisa.</p>
+
+  <div class="group">
+    <div class="group-title">Apresentando sua receita</div>
+
+    <div class="card">
+      <div class="en">"I have a prescription from my doctor back home. Can you fill it?"</div>
+      <div class="pt">Tenho uma receita do meu médico no meu país. Vocês podem atender?</div>
+      <div class="note red">Na maioria dos países, receitas estrangeiras <strong>não são aceitas</strong>. Nos EUA, você precisará de um médico local. Leve sua receita mesmo assim — ela serve como referência para o médico.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I take this medication daily. Here's the name and dosage."</div>
+      <div class="pt">Tomo esse medicamento diariamente. Aqui está o nome e a dosagem.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I ran out of my medication and I need a refill. Is that possible without a local prescription?"</div>
+      <div class="pt">Meu remédio acabou e preciso de uma reposição. É possível sem receita local?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can the pharmacist authorize an emergency supply?"</div>
+      <div class="pt">O farmacêutico pode autorizar um fornecimento de emergência?</div>
+      <div class="note green">Em alguns países (como o Reino Unido), farmacêuticos podem fornecer pequenas quantidades de medicamentos essenciais em <strong>emergências</strong>, chamado <strong>"emergency supply"</strong>.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"The brand name might be different here. The active ingredient is [name]."</div>
+      <div class="pt">A marca pode ser diferente aqui. O princípio ativo é [nome].</div>
+      <div class="note blue"><strong>"Active ingredient"</strong> = princípio ativo. Essa é a informação mais importante. Nomes comerciais mudam de país para país, mas o princípio ativo é universal.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"How long will it take to fill this prescription?"</div>
+      <div class="pt">Quanto tempo leva para preparar essa receita?</div>
+    </div>
+  </div>
+
+  <div class="block warning">
+    <h4>Atenção Importante</h4>
+    <p>Alguns medicamentos que são vendidos <strong>sem receita</strong> no Brasil exigem <strong>receita</strong> nos EUA e na Europa (e vice-versa). Exemplos: antibióticos, certos antialérgicos, relaxantes musculares, e muitos anti-inflamatórios mais fortes. Sempre verifique antes de viajar se os seus remédios habituais requerem receita no destino. Leve sempre a receita original + uma cópia em inglês, de preferência com o nome genérico (princípio ativo) do medicamento.</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 5 ██████ -->
+<section class="section" id="s5">
+  <div class="section-tag amber"><span class="n">5</span> Allergies & Conditions</div>
+  <h2>Alergias e Condições Especiais</h2>
+  <p class="section-sub">Como comunicar informações médicas que podem salvar a sua vida.</p>
+
+  <p class="section-intro">
+    Se você tem alguma alergia, condição crônica ou restrição alimentar que afeta medicamentos, é absolutamente crítico saber comunicar isso de forma clara e imediata. Essas frases precisam estar na ponta da língua.
+  </p>
+
+  <div class="group">
+    <div class="group-title">Comunicando alergias</div>
+
+    <div class="card">
+      <div class="en">"I'm allergic to penicillin / aspirin / sulfa drugs / ibuprofen."</div>
+      <div class="pt">Sou alérgico(a) a penicilina / aspirina / sulfonamidas / ibuprofeno.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have a severe allergy to [substance]. I carry an EpiPen."</div>
+      <div class="pt">Tenho uma alergia grave a [substância]. Carrego uma EpiPen.</div>
+      <div class="note amber"><strong>EpiPen</strong> = caneta de epinefrina (adrenalina) para reações alérgicas graves. Se você usa, saiba dizer o nome em inglês.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I can't take anything with [ingredient] in it."</div>
+      <div class="pt">Não posso tomar nada que contenha [ingrediente].</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Could you check if this medication contains [substance]?"</div>
+      <div class="pt">Poderia verificar se esse medicamento contém [substância]?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I'm lactose intolerant. Does this have any dairy-based ingredients?"</div>
+      <div class="pt">Sou intolerante à lactose. Isso tem algum ingrediente à base de leite?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Condições crônicas</div>
+
+    <div class="card">
+      <div class="en">"I'm diabetic. Type 1 / Type 2."</div>
+      <div class="pt">Sou diabético(a). Tipo 1 / Tipo 2.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have high blood pressure and I take medication for it."</div>
+      <div class="pt">Tenho pressão alta e tomo medicamento para isso.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have asthma. I need to buy an inhaler."</div>
+      <div class="pt">Tenho asma. Preciso comprar uma bombinha.</div>
+      <div class="note green"><strong>Inhaler</strong> = bombinha de asma. <strong>"Puffer"</strong> também é usado informalmente.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I'm pregnant / I might be pregnant. Is this safe to take?"</div>
+      <div class="pt">Estou grávida / posso estar grávida. É seguro tomar isso?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I'm breastfeeding. Will this affect my baby?"</div>
+      <div class="pt">Estou amamentando. Isso pode afetar meu bebê?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have a heart condition / a blood clotting disorder / epilepsy."</div>
+      <div class="pt">Tenho um problema cardíaco / distúrbio de coagulação / epilepsia.</div>
+    </div>
+  </div>
+
+  <div class="block tip">
+    <h4>Dica de Ouro</h4>
+    <p>Antes de viajar, prepare um pequeno cartão (físico ou no celular) com suas informações médicas essenciais em inglês: alergias, condições crônicas, medicamentos em uso (com nomes genéricos) e tipo sanguíneo. Isso pode literalmente salvar sua vida em uma emergência. Nos EUA, muitas pessoas usam pulseiras de alerta médico (<strong>medical alert bracelet</strong>) — considere ter uma para viagens.</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 6 ██████ -->
+<section class="section" id="s6">
+  <div class="section-tag green"><span class="n">6</span> Pain Management</div>
+  <h2>Dores — Cabeça, Costas, Dente e Mais</h2>
+  <p class="section-sub">Frases específicas para cada tipo de dor que pode aparecer durante a viagem.</p>
+
+  <div class="group">
+    <div class="group-title">Dor de cabeça e enxaqueca</div>
+
+    <div class="card">
+      <div class="en">"I have a splitting headache."</div>
+      <div class="pt">Estou com uma dor de cabeça fortíssima.</div>
+      <div class="note green"><strong>"Splitting headache"</strong> = dor de cabeça intensa, como se a cabeça estivesse partindo ao meio. Expressão muito usada.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I think I'm having a migraine. I'm sensitive to light and noise."</div>
+      <div class="pt">Acho que estou com enxaqueca. Estou sensível à luz e ao barulho.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Dor nas costas e muscular</div>
+
+    <div class="card">
+      <div class="en">"I pulled a muscle in my back." / "I threw out my back."</div>
+      <div class="pt">Distendi um músculo das costas. / Travei as costas.</div>
+      <div class="note blue"><strong>"I threw out my back"</strong> é uma expressão muito idiomática e natural para dizer que travou a coluna.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need a muscle relaxant or a heating pad."</div>
+      <div class="pt">Preciso de um relaxante muscular ou uma bolsa térmica.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you sell hot/cold patches for muscle pain?"</div>
+      <div class="pt">Vocês vendem adesivos quente/frio para dor muscular?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Dor de dente</div>
+
+    <div class="card">
+      <div class="en">"I have a terrible toothache. Is there anything I can take until I see a dentist?"</div>
+      <div class="pt">Estou com uma dor de dente terrível. Tem algo que eu possa tomar até consultar um dentista?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I think I chipped / cracked a tooth."</div>
+      <div class="pt">Acho que lasquei / trinquei um dente.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have any numbing gel for toothaches?"</div>
+      <div class="pt">Vocês têm algum gel anestésico para dor de dente?</div>
+      <div class="note green"><strong>Numbing gel</strong> (como Orajel) é vendido sem receita nos EUA e alivia temporariamente.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can you recommend an emergency dentist nearby?"</div>
+      <div class="pt">Pode recomendar um dentista de emergência por perto?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Dor menstrual</div>
+
+    <div class="card">
+      <div class="en">"I need something for menstrual cramps."</div>
+      <div class="pt">Preciso de algo para cólicas menstruais.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Where are the feminine hygiene products? I need pads / tampons."</div>
+      <div class="pt">Onde ficam os produtos de higiene feminina? Preciso de absorventes / tampões.</div>
+    </div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 7 ██████ -->
+<section class="section" id="s7">
+  <div class="section-tag green"><span class="n">7</span> Cold & Flu</div>
+  <h2>Gripe, Resfriado e Problemas Respiratórios</h2>
+  <p class="section-sub">O problema de saúde mais comum em viagens — e como resolver rápido.</p>
+
+  <div class="group">
+    <div class="group-title">Descrevendo os sintomas</div>
+
+    <div class="card">
+      <div class="en">"I think I'm coming down with a cold."</div>
+      <div class="pt">Acho que estou pegando um resfriado.</div>
+      <div class="note green"><strong>"Coming down with"</strong> = começando a ficar doente. Expressão muito natural e usada no dia a dia.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have a runny nose, a sore throat, and I've been sneezing all day."</div>
+      <div class="pt">Estou com nariz escorrendo, dor de garganta e espirrando o dia todo.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have a dry cough that won't go away."</div>
+      <div class="pt">Tenho uma tosse seca que não passa.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"My nose is completely blocked. I can't breathe through it."</div>
+      <div class="pt">Meu nariz está completamente entupido. Não consigo respirar por ele.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have body aches, a fever of 101°F, and I feel exhausted."</div>
+      <div class="pt">Estou com dor no corpo, febre de 38,3°C e me sinto exausto(a).</div>
+      <div class="note amber">Nos EUA, a temperatura é medida em <strong>Fahrenheit</strong>. Referência rápida: 98.6°F = 37°C (normal), 100.4°F = 38°C (febre), 103°F = 39.4°C (febre alta).</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I've lost my sense of taste and smell."</div>
+      <div class="pt">Perdi o paladar e o olfato.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Pedindo o remédio certo</div>
+
+    <div class="card">
+      <div class="en">"I need something that covers everything — sore throat, congestion, and fever."</div>
+      <div class="pt">Preciso de algo que cubra tudo — garganta, congestão e febre.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have a daytime and nighttime formula? I need to stay awake during the day."</div>
+      <div class="pt">Vocês têm fórmula diurna e noturna? Preciso ficar acordado(a) durante o dia.</div>
+      <div class="note blue">Nos EUA, remédios de gripe como <strong>DayQuil (dia)</strong> e <strong>NyQuil (noite)</strong> são muito populares. A versão noturna contém sedativo.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I'd also like some throat lozenges and a nasal spray."</div>
+      <div class="pt">Gostaria também de pastilhas para garganta e um spray nasal.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have a thermometer? I want to check my temperature."</div>
+      <div class="pt">Vocês têm termômetro? Quero verificar minha temperatura.</div>
+    </div>
+  </div>
+
+  <div class="dialogue">
+    <div class="dialogue-label">Diálogo Prático</div>
+    <div class="dialogue-context">Numa CVS Pharmacy — você está com sintomas de gripe forte</div>
+
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">I think I have the flu. I've had a fever since last night, body aches, and a terrible cough.</div>
+        <div class="pt">Acho que estou com gripe. Tenho febre desde ontem à noite, dor no corpo e uma tosse horrível.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">PH</div>
+      <div class="bubble">
+        <div class="en">I'm sorry you're not feeling well. Do you have any allergies or are you taking any medications?</div>
+        <div class="pt">Sinto muito que não está se sentindo bem. Tem alguma alergia ou está tomando algum medicamento?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">No allergies and no other medications.</div>
+        <div class="pt">Sem alergias e sem outros medicamentos.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">PH</div>
+      <div class="bubble">
+        <div class="en">I'd suggest NyQuil for nighttime — it'll help you sleep. For the daytime, take DayQuil so you don't feel drowsy. And make sure to stay hydrated. If the fever goes above 103 or doesn't break in three days, please go to urgent care.</div>
+        <div class="pt">Sugiro NyQuil para a noite — vai ajudar a dormir. De dia, tome DayQuil para não sentir sono. E mantenha-se hidratado(a). Se a febre passar de 39,4°C ou não ceder em três dias, procure um pronto-atendimento.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 8 ██████ -->
+<section class="section" id="s8">
+  <div class="section-tag green"><span class="n">8</span> Digestive Issues</div>
+  <h2>Problemas Digestivos e de Estômago</h2>
+  <p class="section-sub">Diarreia, intoxicação alimentar, enjoo — o pesadelo do viajante.</p>
+
+  <div class="group">
+    <div class="group-title">Descrevendo o problema</div>
+
+    <div class="card">
+      <div class="en">"I have an upset stomach." / "My stomach is killing me."</div>
+      <div class="pt">Estou com o estômago embrulhado. / Meu estômago está me matando.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I've been having diarrhea since yesterday."</div>
+      <div class="pt">Estou com diarreia desde ontem.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I think I got food poisoning. I've been throwing up all night."</div>
+      <div class="pt">Acho que tive uma intoxicação alimentar. Passei a noite vomitando.</div>
+      <div class="note green"><strong>"Food poisoning"</strong> = intoxicação alimentar. <strong>"Throwing up"</strong> = vomitando (informal, mas perfeitamente aceito).</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I feel bloated and I have really bad heartburn."</div>
+      <div class="pt">Estou estufado(a) e com uma azia terrível.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I've been constipated for three days."</div>
+      <div class="pt">Estou constipado(a) há três dias.</div>
+      <div class="note amber">Cuidado: <strong>"constipated"</strong> em inglês = intestino preso. NÃO significa resfriado (como em português). Esse é um erro clássico de brasileiros.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need something for nausea. I've been feeling nauseous all day."</div>
+      <div class="pt">Preciso de algo para náusea. Estou enjoado(a) o dia todo.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Pedindo o tratamento</div>
+
+    <div class="card">
+      <div class="en">"What do you recommend for food poisoning?"</div>
+      <div class="pt">O que recomenda para intoxicação alimentar?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need an oral rehydration solution."</div>
+      <div class="pt">Preciso de um soro de reidratação oral.</div>
+      <div class="note blue"><strong>Pedialyte</strong> (para crianças e adultos) ou <strong>Liquid I.V.</strong> são as marcas mais comuns nos EUA para reidratação.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have Pepto-Bismol or something similar?"</div>
+      <div class="pt">Vocês têm Pepto-Bismol ou algo parecido?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need something to stop the diarrhea. I have a long flight tomorrow."</div>
+      <div class="pt">Preciso de algo para parar a diarreia. Tenho um voo longo amanhã.</div>
+    </div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 9 ██████ -->
+<section class="section" id="s9">
+  <div class="section-tag green"><span class="n">9</span> Skin Issues</div>
+  <h2>Problemas de Pele</h2>
+  <p class="section-sub">Queimadura solar, picadas de inseto, erupções e reações alérgicas na pele.</p>
+
+  <div class="group">
+    <div class="group-title">Queimadura solar</div>
+
+    <div class="card">
+      <div class="en">"I got a really bad sunburn. My skin is red and peeling."</div>
+      <div class="pt">Me queimei muito no sol. Minha pele está vermelha e descascando.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have aloe vera gel for sunburn?"</div>
+      <div class="pt">Vocês têm gel de babosa para queimadura de sol?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need a strong sunscreen — SPF 50 or higher."</div>
+      <div class="pt">Preciso de um protetor solar forte — FPS 50 ou mais.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Picadas e insetos</div>
+
+    <div class="card">
+      <div class="en">"I got bitten by something and it's swollen and itchy."</div>
+      <div class="pt">Fui picado(a) por alguma coisa e está inchado e coçando.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need insect repellent with DEET."</div>
+      <div class="pt">Preciso de repelente com DEET.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"What can I put on a mosquito bite to stop the itching?"</div>
+      <div class="pt">O que posso passar numa picada de mosquito para parar a coceira?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I was stung by a bee / wasp. It's really swelling up."</div>
+      <div class="pt">Fui picado(a) por uma abelha / vespa. Está inchando muito.</div>
+      <div class="note red">Se o inchaço estiver se espalhando, houver dificuldade para respirar ou tonturas, é <strong>reação alérgica grave (anaphylaxis)</strong> — vá imediatamente ao pronto-socorro.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Erupções e reações</div>
+
+    <div class="card">
+      <div class="en">"I have a rash on my arms and it's spreading."</div>
+      <div class="pt">Tenho uma erupção nos braços e está se espalhando.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I think I had an allergic reaction to something I ate / touched / applied."</div>
+      <div class="pt">Acho que tive uma reação alérgica a algo que comi / toquei / apliquei.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need an antihistamine cream and maybe some oral antihistamines."</div>
+      <div class="pt">Preciso de um creme antialérgico e talvez um antialérgico oral.</div>
+    </div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 10 ██████ -->
+<section class="section" id="s10">
+  <div class="section-tag green"><span class="n">10</span> Eyes, Ears & Mouth</div>
+  <h2>Olhos, Ouvidos e Boca</h2>
+  <p class="section-sub">Problemas que parecem pequenos, mas atrapalham muito — especialmente em viagem.</p>
+
+  <div class="group">
+    <div class="group-title">Olhos</div>
+
+    <div class="card">
+      <div class="en">"My eyes are red and irritated. I think it might be conjunctivitis."</div>
+      <div class="pt">Meus olhos estão vermelhos e irritados. Acho que pode ser conjuntivite.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need eye drops for dry eyes / allergies."</div>
+      <div class="pt">Preciso de colírio para olhos secos / alergias.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I lost a contact lens. Do you sell daily disposable lenses?"</div>
+      <div class="pt">Perdi uma lente de contato. Vocês vendem lentes descartáveis diárias?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I got something in my eye and I can't get it out."</div>
+      <div class="pt">Entrou algo no meu olho e não consigo tirar.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Ouvidos</div>
+
+    <div class="card">
+      <div class="en">"I have an earache. I think it might be an ear infection."</div>
+      <div class="pt">Estou com dor de ouvido. Acho que pode ser uma infecção.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"My ears are clogged — probably from the flight."</div>
+      <div class="pt">Meus ouvidos estão tampados — provavelmente por causa do voo.</div>
+      <div class="note blue"><strong>"Clogged ears"</strong> ou <strong>"plugged ears"</strong> = ouvidos tampados/entupidos. Muito comum após voos longos.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have ear drops for swimmer's ear?"</div>
+      <div class="pt">Vocês têm gotas para ouvido de nadador?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Boca e dentes</div>
+
+    <div class="card">
+      <div class="en">"I have a canker sore inside my mouth. It hurts to eat."</div>
+      <div class="pt">Tenho uma afta dentro da boca. Dói para comer.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I have a cold sore on my lip. Do you have antiviral cream?"</div>
+      <div class="pt">Tenho uma herpes labial. Vocês têm creme antiviral?</div>
+      <div class="note green"><strong>Canker sore</strong> = afta (dentro da boca). <strong>Cold sore</strong> = herpes labial (no lábio). São coisas diferentes — não confunda.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"A filling fell out of my tooth. Is there a temporary filling kit?"</div>
+      <div class="pt">Caiu uma obturação. Existe um kit de obturação temporária?</div>
+    </div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 11 ██████ -->
+<section class="section" id="s11">
+  <div class="section-tag amber"><span class="n">11</span> First Aid</div>
+  <h2>Primeiros Socorros</h2>
+  <p class="section-sub">Cortes, quedas, torções e queimaduras — o que comprar e como descrever.</p>
+
+  <div class="group">
+    <div class="group-title">Cortes e feridas</div>
+
+    <div class="card">
+      <div class="en">"I cut my hand and it won't stop bleeding."</div>
+      <div class="pt">Cortei a mão e não para de sangrar.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need bandages, antiseptic wipes, and some gauze."</div>
+      <div class="pt">Preciso de curativos, lenços antissépticos e gaze.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have butterfly bandages? The cut might need to be closed."</div>
+      <div class="pt">Vocês têm curativos butterfly? O corte pode precisar ser fechado.</div>
+      <div class="note blue"><strong>Butterfly bandage / butterfly closure</strong> = adesivo em formato de borboleta que une as bordas de um corte. Alternativa a pontos em cortes menores.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Torções e pancadas</div>
+
+    <div class="card">
+      <div class="en">"I twisted my ankle. It's swollen and I can barely walk."</div>
+      <div class="pt">Torci meu tornozelo. Está inchado e mal consigo andar.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I need an elastic bandage / an ankle brace / an ice pack."</div>
+      <div class="pt">Preciso de uma faixa elástica / uma tornozeleira / uma bolsa de gelo.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I fell and hurt my wrist. It's really bruised. Do you think I should get an X-ray?"</div>
+      <div class="pt">Caí e machuquei meu pulso. Está muito roxo. Acha que deveria fazer um raio-X?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Queimaduras</div>
+
+    <div class="card">
+      <div class="en">"I burned my hand on the stove. It's blistering."</div>
+      <div class="pt">Queimei a mão no fogão. Está formando bolhas.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have burn cream or burn gel?"</div>
+      <div class="pt">Vocês têm creme ou gel para queimaduras?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Kit de primeiros socorros — vocabulário</div>
+  </div>
+
+  <div class="vocab">
+    <div class="vocab-item"><div class="en">Band-Aid / adhesive bandage</div><div class="pt">curativo adesivo</div></div>
+    <div class="vocab-item"><div class="en">gauze / sterile gauze pads</div><div class="pt">gaze / compressas estéreis</div></div>
+    <div class="vocab-item"><div class="en">medical tape</div><div class="pt">esparadrapo</div></div>
+    <div class="vocab-item"><div class="en">elastic bandage (ACE wrap)</div><div class="pt">faixa elástica</div></div>
+    <div class="vocab-item"><div class="en">antiseptic wipes</div><div class="pt">lenços antissépticos</div></div>
+    <div class="vocab-item"><div class="en">hydrogen peroxide</div><div class="pt">água oxigenada</div></div>
+    <div class="vocab-item"><div class="en">antibiotic ointment (Neosporin)</div><div class="pt">pomada antibiótica</div></div>
+    <div class="vocab-item"><div class="en">tweezers</div><div class="pt">pinça</div></div>
+    <div class="vocab-item"><div class="en">ice pack / cold compress</div><div class="pt">bolsa de gelo / compressa fria</div></div>
+    <div class="vocab-item"><div class="en">sling (for arm)</div><div class="pt">tipoia</div></div>
+    <div class="vocab-item"><div class="en">splint</div><div class="pt">tala</div></div>
+    <div class="vocab-item"><div class="en">first-aid kit</div><div class="pt">kit de primeiros socorros</div></div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 12 ██████ -->
+<section class="section" id="s12">
+  <div class="section-tag green"><span class="n">12</span> Children</div>
+  <h2>Crianças e Bebês</h2>
+  <p class="section-sub">Medicamentos infantis têm regras e dosagens completamente diferentes.</p>
+
+  <div class="group">
+    <div class="group-title">Descrevendo os sintomas do seu filho(a)</div>
+
+    <div class="card">
+      <div class="en">"My child has a fever of 102°F. She's three years old and weighs about 30 pounds."</div>
+      <div class="pt">Minha filha está com febre de 38,9°C. Ela tem três anos e pesa cerca de 14 kg.</div>
+      <div class="note amber">Nos EUA, peso é em <strong>pounds (lbs)</strong>. 1 kg ≈ 2.2 lbs. Dosagens infantis são calculadas por peso, então saber isso é crítico.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"My baby has been crying all night and pulling at his ear."</div>
+      <div class="pt">Meu bebê chorou a noite toda e fica puxando a orelha.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"My child has been vomiting and has diarrhea. I'm worried about dehydration."</div>
+      <div class="pt">Meu filho está vomitando e com diarreia. Estou preocupado(a) com desidratação.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Pedindo medicamentos infantis</div>
+
+    <div class="card">
+      <div class="en">"I need children's Tylenol / children's ibuprofen in liquid form."</div>
+      <div class="pt">Preciso de Tylenol infantil / ibuprofeno infantil em forma líquida.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"What's the correct dosage for a child who weighs 40 pounds?"</div>
+      <div class="pt">Qual é a dosagem correta para uma criança de 18 kg (40 libras)?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have Pedialyte for children? My son is dehydrated."</div>
+      <div class="pt">Vocês têm Pedialyte infantil? Meu filho está desidratado.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Is this safe for infants / toddlers?"</div>
+      <div class="pt">Isso é seguro para bebês / crianças pequenas?</div>
+      <div class="note green"><strong>Infant</strong> = bebê (0–1 ano). <strong>Toddler</strong> = criança pequena (1–3 anos). <strong>Child/kid</strong> = criança (3+). Farmacêuticos nos EUA fazem essa distinção para dosagens.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Do you have a medicine dropper / syringe for giving liquid medicine to a baby?"</div>
+      <div class="pt">Vocês têm um conta-gotas / seringa para dar remédio líquido a um bebê?</div>
+    </div>
+  </div>
+
+  <div class="block alert">
+    <h4>Alerta de Segurança</h4>
+    <p><strong>Nunca dê aspirina (aspirin) a crianças</strong> — pode causar uma condição rara e perigosa chamada Síndrome de Reye. Use sempre <strong>acetaminophen (Tylenol)</strong> ou <strong>ibuprofen (Advil/Motrin)</strong> em versão infantil. E nunca medique uma criança com base na dosagem de adulto — sempre pergunte ao farmacêutico.</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ═══════════════════════════════════════ -->
+<!-- EMERGENCY BANNER -->
+<!-- ═══════════════════════════════════════ -->
+<div class="emergency-banner">
+  <div class="content">
+    <h3>Seções de <em>Emergência</em></h3>
+    <p>As próximas seções cobrem situações mais graves — do pronto-atendimento ao 911. Esperamos que você nunca precise, mas se precisar, estará preparado.</p>
+  </div>
 </div>
+<!-- ██████ SEÇÃO 13 ██████ -->
+<section class="section" id="s13">
+  <div class="section-tag red"><span class="n">13</span> Urgent Care</div>
+  <h2>Urgent Care e Walk-in Clinics</h2>
+  <p class="section-sub">O pronto-atendimento para situações que não são de risco de vida — mas que precisam de um médico.</p>
 
-<script>
-// ─── MEDICAL VOCABULARY ───────────────────────────────────────────────────────
-const VOCAB = [
-  { en: 'dyspnea',        pt: 'dispneia' },
-  { en: 'tachycardia',    pt: 'taquicardia' },
-  { en: 'bradycardia',    pt: 'bradicardia' },
-  { en: 'hypertension',   pt: 'hipertensão' },
-  { en: 'hypoxia',        pt: 'hipóxia' },
-  { en: 'edema',          pt: 'edema' },
-  { en: 'syncope',        pt: 'síncope' },
-  { en: 'auscultation',   pt: 'ausculta' },
-  { en: 'pallor',         pt: 'palidez' },
-  { en: 'cyanosis',       pt: 'cianose' },
-  { en: 'hemoptysis',     pt: 'hemoptise' },
-  { en: 'dysphagia',      pt: 'disfagia' },
-  { en: 'paraesthesia',   pt: 'parestesia' },
-  { en: 'vertigo',        pt: 'vertigem' },
-  { en: 'prognosis',      pt: 'prognóstico' },
-  { en: 'anamnesis',      pt: 'anamnese' },
-  { en: 'triage',         pt: 'triagem' },
-  { en: 'palpation',      pt: 'palpação' },
-  { en: 'percussion',     pt: 'percussão' },
-  { en: 'jaundice',       pt: 'icterícia' },
-  { en: 'diuresis',       pt: 'diurese' },
-  { en: 'embolism',       pt: 'embolia' },
-  { en: 'ischemia',       pt: 'isquemia' },
-  { en: 'infarction',     pt: 'infarto' },
-  { en: 'necrosis',       pt: 'necrose' },
-  { en: 'fibrosis',       pt: 'fibrose' },
-  { en: 'stenosis',       pt: 'estenose' },
-  { en: 'thrombosis',     pt: 'trombose' },
-  { en: 'septicemia',     pt: 'septicemia' },
-  { en: 'hemostasis',     pt: 'hemostasia' },
-  { en: 'diaphoresis',    pt: 'diaforese' },
-  { en: 'epistaxis',      pt: 'epistaxe' },
-  { en: 'oliguria',       pt: 'oligúria' },
-  { en: 'anuria',         pt: 'anúria' },
-  { en: 'hematuria',      pt: 'hematúria' },
-  { en: 'cachexia',       pt: 'caquexia' },
-  { en: 'ascites',        pt: 'ascite' },
-  { en: 'atelectasis',    pt: 'atelectasia' },
-  { en: 'pneumothorax',   pt: 'pneumotórax' },
-  { en: 'emphysema',      pt: 'enfisema' },
-];
+  <p class="section-intro">
+    Nos EUA, existe uma categoria de atendimento médico entre a farmácia e o pronto-socorro: as <strong>urgent care clinics</strong> (ou walk-in clinics). São para situações que precisam de médico mas não são emergências com risco de vida — infecções, cortes que precisam de pontos, torções sérias, febre persistente, infecção urinária, etc. São mais baratas e rápidas que o ER (emergency room) e não exigem agendamento.
+  </p>
 
-const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  <div class="group">
+    <div class="group-title">Chegando e se registrando</div>
 
-// ─── CANVAS SETUP ────────────────────────────────────────────────────────────
-const canvas = document.getElementById('game');
-const ctx    = canvas.getContext('2d');
-const arena  = document.getElementById('arena');
+    <div class="card">
+      <div class="en">"Hi, I'd like to see a doctor. I don't have an appointment — is that okay?"</div>
+      <div class="pt">Oi, gostaria de consultar um médico. Não tenho agendamento — tudo bem?</div>
+    </div>
 
-let COLS, ROWS, CELL, W, H;
+    <div class="card">
+      <div class="en">"I'm a tourist. I don't have local health insurance. Can I still be seen?"</div>
+      <div class="pt">Sou turista. Não tenho seguro saúde local. Ainda posso ser atendido(a)?</div>
+    </div>
 
-function resize() {
-  const pad  = 32;
-  const aw   = arena.clientWidth  - pad * 2;
-  const ah   = arena.clientHeight - pad * 2;
-  CELL = window.innerWidth < 700 ? 36 : 44;
-  COLS = Math.floor(aw / CELL);
-  ROWS = Math.floor(ah / CELL);
-  // keep odd for centering
-  if (COLS % 2 === 0) COLS--;
-  if (ROWS % 2 === 0) ROWS--;
-  COLS = Math.max(11, COLS);
-  ROWS = Math.max(9,  ROWS);
-  W = COLS * CELL;
-  H = ROWS * CELL;
-  canvas.width  = W;
-  canvas.height = H;
-}
-resize();
+    <div class="card">
+      <div class="en">"How long is the wait right now?"</div>
+      <div class="pt">Quanto tempo de espera no momento?</div>
+    </div>
 
-// ─── GAME STATE ──────────────────────────────────────────────────────────────
-let snake, dir, nextDir, food, score, level, speed, paused, running, intervalId;
-let collected = [];
-let foodItem  = null;
+    <div class="card">
+      <div class="en">"I have travel insurance. Here's my policy number and the insurance company's contact."</div>
+      <div class="pt">Tenho seguro viagem. Aqui está o número da apólice e o contato da seguradora.</div>
+    </div>
 
-function initGame() {
-  resize();
-  const cx = Math.floor(COLS / 2);
-  const cy = Math.floor(ROWS / 2);
-  snake   = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }];
-  dir     = { x: 1, y: 0 };
-  nextDir = { x: 1, y: 0 };
-  score   = 0;
-  level   = 1;
-  speed   = 200;
-  paused  = false;
-  running = true;
-  collected = [];
-  foodItem  = null;
-  updateScoreDisplay();
-  updateLevelDisplay();
-  placeFood();
-  clearInterval(intervalId);
-  intervalId = setInterval(tick, speed);
-}
+    <div class="card">
+      <div class="en">"Do I need to fill out any forms first?"</div>
+      <div class="pt">Preciso preencher algum formulário antes?</div>
+    </div>
+  </div>
 
-// ─── FOOD WORDS ──────────────────────────────────────────────────────────────
-function placeFood() {
-  const remaining = VOCAB.filter(v => !collected.find(c => c.en === v.en));
-  const pool = remaining.length > 0 ? remaining : VOCAB;
-  const item = pool[Math.floor(Math.random() * pool.length)];
-  let x, y, safe;
-  let tries = 0;
-  do {
-    x = 1 + Math.floor(Math.random() * (COLS - 2));
-    y = 1 + Math.floor(Math.random() * (ROWS - 2));
-    safe = !snake.some(s => s.x === x && s.y === y);
-    tries++;
-  } while (!safe && tries < 200);
-  foodItem = { x, y, ...item };
-}
+  <div class="group">
+    <div class="group-title">Na consulta — explicando ao médico</div>
 
-// ─── TICK ────────────────────────────────────────────────────────────────────
-function tick() {
-  if (!running || paused) return;
-  dir = { ...nextDir };
+    <div class="card">
+      <div class="en">"I've had a high fever for three days and it's not going down with Tylenol."</div>
+      <div class="pt">Estou com febre alta há três dias e não abaixa com Tylenol.</div>
+    </div>
 
-  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    <div class="card">
+      <div class="en">"I think this cut needs stitches."</div>
+      <div class="pt">Acho que esse corte precisa de pontos.</div>
+      <div class="note green"><strong>Stitches</strong> = pontos (de sutura). <strong>"I need stitches"</strong> = preciso de pontos.</div>
+    </div>
 
-  // wall collision
-  if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
-    gameOver(); return;
-  }
-  // self collision
-  if (snake.some(s => s.x === head.x && s.y === head.y)) {
-    gameOver(); return;
-  }
+    <div class="card">
+      <div class="en">"I think I might have a urinary tract infection."</div>
+      <div class="pt">Acho que posso estar com infecção urinária.</div>
+    </div>
 
-  snake.unshift(head);
+    <div class="card">
+      <div class="en">"I have a history of [condition]. Here's a list of my current medications."</div>
+      <div class="pt">Tenho histórico de [condição]. Aqui está a lista dos meus medicamentos atuais.</div>
+    </div>
 
-  if (foodItem && head.x === foodItem.x && head.y === foodItem.y) {
-    eatFood();
-  } else {
-    snake.pop();
-  }
+    <div class="card">
+      <div class="en">"Could you write me a prescription? I'll get it filled at a pharmacy."</div>
+      <div class="pt">Poderia me passar uma receita? Vou comprar o remédio na farmácia.</div>
+    </div>
 
-  draw();
-}
+    <div class="card">
+      <div class="en">"Could I get a medical report for my travel insurance claim?"</div>
+      <div class="pt">Poderia emitir um relatório médico para meu pedido de reembolso do seguro viagem?</div>
+    </div>
+  </div>
 
-function eatFood() {
-  score++;
-  collected.unshift({ en: foodItem.en, pt: foodItem.pt });
-  if (collected.length > 8) collected = collected.slice(0, 8);
-  showWordToast(foodItem);
-  updateGlossary();
-  updateScoreDisplay();
+  <div class="dialogue">
+    <div class="dialogue-label">Diálogo Prático</div>
+    <div class="dialogue-context">Na recepção de uma urgent care clinic</div>
 
-  // level up every 5 words
-  const newLevel = Math.floor(score / 5) + 1;
-  if (newLevel !== level) {
-    level = Math.min(newLevel, 7);
-    speed = Math.max(80, 200 - (level - 1) * 18);
-    clearInterval(intervalId);
-    intervalId = setInterval(tick, speed);
-    updateLevelDisplay();
-  }
-  placeFood();
-}
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">Good morning. I need to see a doctor. I'm visiting from Brazil and I don't have local insurance, but I have travel insurance.</div>
+        <div class="pt">Bom dia. Preciso consultar um médico. Estou visitando do Brasil e não tenho seguro local, mas tenho seguro viagem.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">RC</div>
+      <div class="bubble">
+        <div class="en">No problem at all. We accept self-pay patients. The visit fee is $150 upfront. We'll give you an itemized receipt you can submit to your insurance for reimbursement.</div>
+        <div class="pt">Sem problema. Aceitamos pacientes particulares. A consulta custa $150 adiantado. Daremos um recibo detalhado para você enviar ao seguro para reembolso.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">That works. Can I pay by credit card?</div>
+        <div class="pt">Pode ser. Posso pagar com cartão de crédito?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar them">RC</div>
+      <div class="bubble">
+        <div class="en">Of course. Please fill out this patient intake form and we'll call you in shortly.</div>
+        <div class="pt">Claro. Por favor preencha este formulário de admissão e logo chamaremos você.</div>
+      </div>
+    </div>
+  </div>
 
-function gameOver() {
-  running = false;
-  clearInterval(intervalId);
-  draw(); // draw final state
-  setTimeout(() => showOverlay('over'), 600);
-}
+  <div class="block tip">
+    <h4>Dica de Ouro</h4>
+    <p>Peça sempre um <strong>"itemized receipt"</strong> (recibo detalhado) e um <strong>"medical report"</strong> (relatório médico). Seu seguro viagem vai exigir esses documentos para o reembolso. A palavra-chave para o seguro é <strong>"travel insurance claim"</strong> (pedido de reembolso do seguro viagem).</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 14 ██████ -->
+<section class="section" id="s14">
+  <div class="section-tag red"><span class="n">14</span> Emergency Room</div>
+  <h2>Emergências — No Pronto-Socorro</h2>
+  <p class="section-sub">Quando a situação é grave e cada minuto conta.</p>
 
-// ─── DRAWING ─────────────────────────────────────────────────────────────────
-function draw() {
-  ctx.clearRect(0, 0, W, H);
+  <div class="group">
+    <div class="group-title">Chegando ao pronto-socorro</div>
 
-  // subtle grid lines
-  ctx.strokeStyle = 'rgba(196,164,90,.04)';
-  ctx.lineWidth = 1;
-  for (let c = 0; c <= COLS; c++) {
-    ctx.beginPath(); ctx.moveTo(c * CELL, 0); ctx.lineTo(c * CELL, H); ctx.stroke();
-  }
-  for (let r = 0; r <= ROWS; r++) {
-    ctx.beginPath(); ctx.moveTo(0, r * CELL); ctx.lineTo(W, r * CELL); ctx.stroke();
-  }
+    <div class="card">
+      <div class="en">"I need to go to the emergency room right now."</div>
+      <div class="pt">Preciso ir ao pronto-socorro agora.</div>
+      <div class="note green"><strong>Emergency room (ER)</strong> ou <strong>emergency department (ED)</strong> = pronto-socorro. <strong>A&E (Accident & Emergency)</strong> no Reino Unido.</div>
+    </div>
 
-  // food word
-  if (foodItem) drawFoodWord(foodItem);
+    <div class="card">
+      <div class="en">"This is an emergency. Please help me."</div>
+      <div class="pt">Isso é uma emergência. Por favor me ajude.</div>
+    </div>
 
-  // snake
-  drawSnake();
-}
+    <div class="card">
+      <div class="en">"My husband / wife / friend collapsed and is unconscious."</div>
+      <div class="pt">Meu marido / minha esposa / meu amigo desmaiou e está inconsciente.</div>
+    </div>
 
-function drawSnake() {
-  const len = snake.length;
-  snake.forEach((seg, i) => {
-    const t = i / len; // 0 = head, 1 = tail
-    const x = seg.x * CELL;
-    const y = seg.y * CELL;
-    const pad = 3 + t * 4;
-    const r   = (CELL / 2 - pad);
-    const alpha = 1 - t * 0.6;
+    <div class="card">
+      <div class="en">"He / She is having trouble breathing."</div>
+      <div class="pt">Ele / Ela está com dificuldade para respirar.</div>
+    </div>
 
-    if (i === 0) {
-      // head — gold with glow
-      ctx.save();
-      ctx.shadowColor  = 'rgba(196,164,90,.7)';
-      ctx.shadowBlur   = 18;
-      ctx.fillStyle    = '#C4A45A';
-      roundRect(ctx, x + 3, y + 3, CELL - 6, CELL - 6, 6);
-      ctx.fill();
-      ctx.restore();
+    <div class="card">
+      <div class="en">"He / She is having chest pains and feels dizzy."</div>
+      <div class="pt">Ele / Ela está com dores no peito e tontura.</div>
+    </div>
+  </div>
 
-      // eyes
-      const eyeSize = 3;
-      ctx.fillStyle = '#050D1A';
-      const ex1 = x + CELL/2 - 4, ey1 = y + CELL/2 - 4;
-      const ex2 = x + CELL/2 + 2, ey2 = y + CELL/2 - 4;
+  <div class="group">
+    <div class="group-title">Na triagem — respondendo perguntas (triage)</div>
 
-      if (dir.x === 1)  { drawEyes(x + CELL - 10, y + CELL/2 - 4, x + CELL - 10, y + CELL/2 + 2); }
-      else if (dir.x === -1) { drawEyes(x + 6, y + CELL/2 - 4, x + 6, y + CELL/2 + 2); }
-      else if (dir.y === -1) { drawEyes(x + CELL/2 - 4, y + 6, x + CELL/2 + 2, y + 6); }
-      else              { drawEyes(x + CELL/2 - 4, y + CELL - 10, x + CELL/2 + 2, y + CELL - 10); }
+    <div class="card">
+      <div class="en">"What happened?" → "I fell down the stairs and I can't move my arm."</div>
+      <div class="pt">"O que aconteceu?" → "Caí da escada e não consigo mover meu braço."</div>
+    </div>
 
-    } else {
-      // body — gradient from gold to transparent
-      const gAlpha = Math.max(0.08, alpha);
-      ctx.fillStyle = `rgba(196,164,90,${gAlpha})`;
-      roundRect(ctx, x + 4 + t * 2, y + 4 + t * 2, CELL - 8 - t * 4, CELL - 8 - t * 4, 5);
-      ctx.fill();
+    <div class="card">
+      <div class="en">"Are you allergic to any medications?" → "Yes, I'm allergic to penicillin."</div>
+      <div class="pt">"Tem alergia a algum medicamento?" → "Sim, sou alérgico(a) a penicilina."</div>
+    </div>
 
-      // inner shine
-      if (alpha > 0.3) {
-        ctx.fillStyle = `rgba(212,186,122,${gAlpha * 0.4})`;
-        roundRect(ctx, x + 7, y + 7, CELL - 14, 4, 2);
-        ctx.fill();
-      }
-    }
-  });
-}
+    <div class="card">
+      <div class="en">"When did the symptoms start?" → "About two hours ago, suddenly."</div>
+      <div class="pt">"Quando os sintomas começaram?" → "Há umas duas horas, de repente."</div>
+    </div>
 
-function drawEyes(x1, y1, x2, y2) {
-  ctx.fillStyle = '#050D1A';
-  ctx.beginPath(); ctx.arc(x1 + 2, y1 + 2, 2.5, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x2 + 2, y2 + 2, 2.5, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.beginPath(); ctx.arc(x1 + 3, y1 + 1, 1, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x2 + 3, y2 + 1, 1, 0, Math.PI * 2); ctx.fill();
-}
+    <div class="card">
+      <div class="en">"On a scale of 1 to 10, how bad is your pain?" → "I'd say an eight."</div>
+      <div class="pt">"Numa escala de 1 a 10, quão forte é a dor?" → "Diria uns oito."</div>
+    </div>
 
-function drawFoodWord(item) {
-  const x = item.x * CELL;
-  const y = item.y * CELL;
+    <div class="card">
+      <div class="en">"Do you have any pre-existing conditions?" → "I have diabetes and high blood pressure."</div>
+      <div class="pt">"Tem alguma condição pré-existente?" → "Tenho diabetes e pressão alta."</div>
+    </div>
 
-  // pulsing glow halo
-  const time = Date.now() / 1000;
-  const pulse = 0.5 + 0.5 * Math.sin(time * 3);
+    <div class="card">
+      <div class="en">"Have you eaten or drunk anything in the last few hours?"</div>
+      <div class="pt">"Comeu ou bebeu algo nas últimas horas?"</div>
+    </div>
+  </div>
 
-  ctx.save();
-  ctx.shadowColor  = `rgba(196,164,90,${0.4 + pulse * 0.4})`;
-  ctx.shadowBlur   = 16 + pulse * 10;
+  <div class="group">
+    <div class="group-title">Entendendo os procedimentos</div>
 
-  // cell highlight
-  const grad = ctx.createRadialGradient(x + CELL/2, y + CELL/2, 2, x + CELL/2, y + CELL/2, CELL);
-  grad.addColorStop(0, `rgba(196,164,90,${0.22 + pulse * 0.1})`);
-  grad.addColorStop(1, 'rgba(196,164,90,0)');
-  ctx.fillStyle = grad;
-  roundRect(ctx, x + 1, y + 1, CELL - 2, CELL - 2, 8);
-  ctx.fill();
+    <div class="card">
+      <div class="en">"We need to run some tests — blood work, an X-ray, and a CT scan."</div>
+      <div class="pt">Precisamos fazer alguns exames — exame de sangue, raio-X e tomografia.</div>
+    </div>
 
-  // border
-  ctx.strokeStyle = `rgba(196,164,90,${0.5 + pulse * 0.3})`;
-  ctx.lineWidth   = 1.5;
-  roundRect(ctx, x + 2, y + 2, CELL - 4, CELL - 4, 7);
-  ctx.stroke();
-  ctx.restore();
+    <div class="card">
+      <div class="en">"We're going to give you an IV for fluids and pain medication."</div>
+      <div class="pt">Vamos colocar um soro e medicação para dor na veia.</div>
+      <div class="note green"><strong>IV</strong> = intravenous = intravenoso. <strong>"They put me on an IV"</strong> = me colocaram no soro.</div>
+    </div>
 
-  // word — adaptive font size
-  const word = item.en;
-  const maxW  = CELL * 3.2;
-  let fontSize = 11;
-  ctx.font = `500 ${fontSize}px 'Raleway', sans-serif`;
-  while (ctx.measureText(word).width > maxW - 8 && fontSize > 7) {
-    fontSize--;
-    ctx.font = `500 ${fontSize}px 'Raleway', sans-serif`;
-  }
+    <div class="card">
+      <div class="en">"You'll need stitches." / "It doesn't look broken, but we'll confirm with an X-ray."</div>
+      <div class="pt">Você vai precisar de pontos. / Não parece quebrado, mas vamos confirmar com raio-X.</div>
+    </div>
 
-  ctx.save();
-  ctx.shadowColor = 'rgba(196,164,90,.8)';
-  ctx.shadowBlur  = 8;
-  ctx.fillStyle   = `rgba(232,217,176,${0.85 + pulse * 0.15})`;
-  ctx.textAlign   = 'center';
-  ctx.textBaseline = 'middle';
+    <div class="card">
+      <div class="en">"Could you explain the procedure to me? I want to understand before I consent."</div>
+      <div class="pt">Poderia me explicar o procedimento? Quero entender antes de consentir.</div>
+    </div>
+  </div>
 
-  // draw word ABOVE the cell if it would overflow right
-  const textX = x + CELL / 2;
-  let textY   = y - 10; // above cell
-  if (textY < 14) textY = y + CELL + 14; // below instead
+  <div class="vocab">
+    <div class="vocab-item"><div class="en">blood test / blood work</div><div class="pt">exame de sangue</div></div>
+    <div class="vocab-item"><div class="en">X-ray</div><div class="pt">raio-X</div></div>
+    <div class="vocab-item"><div class="en">CT scan / MRI</div><div class="pt">tomografia / ressonância</div></div>
+    <div class="vocab-item"><div class="en">ultrasound</div><div class="pt">ultrassom</div></div>
+    <div class="vocab-item"><div class="en">IV (intravenous)</div><div class="pt">intravenoso / soro</div></div>
+    <div class="vocab-item"><div class="en">stitches / sutures</div><div class="pt">pontos / suturas</div></div>
+    <div class="vocab-item"><div class="en">cast / splint</div><div class="pt">gesso / tala</div></div>
+    <div class="vocab-item"><div class="en">discharge papers</div><div class="pt">papéis de alta</div></div>
+    <div class="vocab-item"><div class="en">consent form</div><div class="pt">termo de consentimento</div></div>
+    <div class="vocab-item"><div class="en">triage</div><div class="pt">triagem</div></div>
+    <div class="vocab-item"><div class="en">stretcher / wheelchair</div><div class="pt">maca / cadeira de rodas</div></div>
+    <div class="vocab-item"><div class="en">waiting room</div><div class="pt">sala de espera</div></div>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 15 ██████ -->
+<section class="section" id="s15">
+  <div class="section-tag red"><span class="n">15</span> Calling 911</div>
+  <h2>Ligando para o 911</h2>
+  <p class="section-sub">As palavras exatas que você precisa dizer quando a situação é de vida ou morte.</p>
 
-  ctx.font = `500 ${fontSize}px 'Raleway', sans-serif`;
-  ctx.letterSpacing = '0.1em';
-  ctx.fillText(word.toUpperCase(), textX, textY);
+  <p class="section-intro">
+    Essa é provavelmente a seção mais importante de todo este módulo. Numa emergência real, seu nível de inglês não importa — o que importa é conseguir comunicar as informações essenciais de forma clara. O atendente do 911 é treinado para guiar a conversa, mas você precisa responder. Pratique essas frases até virarem automáticas.
+  </p>
 
-  // small gold dot on the cell center
-  ctx.fillStyle = `rgba(196,164,90,${0.7 + pulse * 0.3})`;
-  ctx.beginPath(); ctx.arc(x + CELL/2, y + CELL/2, 4, 0, Math.PI * 2); ctx.fill();
+  <div class="group">
+    <div class="group-title">A ligação — passo a passo</div>
 
-  ctx.restore();
-}
+    <div class="card">
+      <div class="en">"911, what's your emergency?"</div>
+      <div class="pt">"911, qual é a sua emergência?"</div>
+      <div class="note red">Essa é a primeira frase que você vai ouvir. O atendente precisa saber TRÊS coisas: <strong>o que aconteceu, onde você está, e como a pessoa está agora</strong>.</div>
+    </div>
 
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
+    <div class="card">
+      <div class="en">"I need an ambulance. Someone collapsed / is having a heart attack / was in an accident."</div>
+      <div class="pt">Preciso de uma ambulância. Alguém desmaiou / está tendo um infarto / sofreu um acidente.</div>
+    </div>
 
-// ─── UI UPDATES ──────────────────────────────────────────────────────────────
-function updateScoreDisplay() {
-  const el = document.getElementById('scoreDisplay');
-  el.textContent = score;
-  el.classList.remove('pulse');
-  void el.offsetWidth;
-  el.classList.add('pulse');
-}
+    <div class="card">
+      <div class="en">"I'm at [address or location]. Near [landmark]."</div>
+      <div class="pt">Estou em [endereço ou local]. Perto de [ponto de referência].</div>
+    </div>
 
-function updateLevelDisplay() {
-  document.getElementById('levelDisplay').textContent = ROMAN[level - 1] || level;
-}
+    <div class="card">
+      <div class="en">"The person is conscious / unconscious."</div>
+      <div class="pt">A pessoa está consciente / inconsciente.</div>
+    </div>
 
-function showWordToast(item) {
-  const el = document.getElementById('wordToast');
-  el.textContent = `${item.en} — ${item.pt}`;
-  el.classList.remove('show');
-  void el.offsetWidth;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 900);
-}
+    <div class="card">
+      <div class="en">"He / She is breathing / is not breathing."</div>
+      <div class="pt">Ele / Ela está respirando / não está respirando.</div>
+    </div>
 
-function updateGlossary() {
-  const g = document.getElementById('glossary');
-  // keep title
-  const title = g.querySelector('.glossary-title');
-  g.innerHTML = '';
-  g.appendChild(title);
-  collected.slice(0, 6).forEach((item, i) => {
-    const entry = document.createElement('div');
-    entry.className = 'glossary-entry';
-    entry.style.animationDelay = `${i * 50}ms`;
-    entry.innerHTML = `<div class="glossary-word">${item.en}</div><div class="glossary-pt">${item.pt}</div>`;
-    g.appendChild(entry);
-  });
-}
+    <div class="card">
+      <div class="en">"There is a lot of blood." / "He / She is bleeding heavily."</div>
+      <div class="pt">Tem muito sangue. / Ele / Ela está sangrando muito.</div>
+    </div>
 
-function showOverlay(which) {
-  document.getElementById('overlayStart').classList.add('hidden');
-  document.getElementById('overlayOver').classList.add('hidden');
-  if (which === 'start') {
-    document.getElementById('overlayStart').classList.remove('hidden');
-  } else if (which === 'over') {
-    document.getElementById('finalScore').textContent = score;
-    const last = collected[0];
-    document.getElementById('lastWord').textContent = last
-      ? `Último termo: ${last.en} — ${last.pt}`
-      : 'Continue praticando!';
-    document.getElementById('overlayOver').classList.remove('hidden');
-  }
-}
+    <div class="card">
+      <div class="en">"Please hurry. It's very serious."</div>
+      <div class="pt">Por favor, venham rápido. É muito sério.</div>
+    </div>
 
-// ─── ANIMATION LOOP (for food pulse while running) ────────────────────────────
-let rafId;
-function animate() {
-  if (running && !paused) draw();
-  rafId = requestAnimationFrame(animate);
-}
-animate();
+    <div class="card">
+      <div class="en">"I don't speak English very well. Please speak slowly."</div>
+      <div class="pt">Não falo inglês muito bem. Por favor, fale devagar.</div>
+      <div class="note green">Não tenha vergonha de dizer isso. É muito melhor do que não entender as instruções. Nos EUA, muitos centros de 911 têm acesso a <strong>intérpretes por telefone</strong> — você pode pedir: <strong>"Do you have a Portuguese interpreter?"</strong></div>
+    </div>
+  </div>
 
-// ─── CONTROLS ────────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  const key = e.key;
-  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(key)) {
-    e.preventDefault();
-  }
-  if (!running) return;
-  if (key === 'p' || key === 'P') {
-    paused = !paused;
-    return;
-  }
-  const map = {
-    ArrowUp:    { x: 0,  y: -1 },
-    ArrowDown:  { x: 0,  y:  1 },
-    ArrowLeft:  { x: -1, y:  0 },
-    ArrowRight: { x: 1,  y:  0 },
-    w:          { x: 0,  y: -1 },
-    s:          { x: 0,  y:  1 },
-    a:          { x: -1, y:  0 },
-    d:          { x: 1,  y:  0 },
-  };
-  const nd = map[key];
-  if (nd && !(nd.x === -dir.x && nd.y === -dir.y)) {
-    nextDir = nd;
-  }
-});
+  <div class="dialogue emergency-dialogue">
+    <div class="dialogue-label">Diálogo Prático — Emergência</div>
+    <div class="dialogue-context">Ligação para o 911 — alguém passou mal no hotel</div>
 
-// Touch/swipe support
-let touchStart = null;
-canvas.addEventListener('touchstart', e => {
-  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: true });
-canvas.addEventListener('touchend', e => {
-  if (!touchStart) return;
-  const dx = e.changedTouches[0].clientX - touchStart.x;
-  const dy = e.changedTouches[0].clientY - touchStart.y;
-  if (Math.abs(dx) > Math.abs(dy)) {
-    const nd = dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
-    if (!(nd.x === -dir.x)) nextDir = nd;
-  } else {
-    const nd = dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
-    if (!(nd.y === -dir.y)) nextDir = nd;
-  }
-  touchStart = null;
-}, { passive: true });
+    <div class="line">
+      <div class="avatar op">911</div>
+      <div class="bubble">
+        <div class="en">911, what's your emergency?</div>
+        <div class="pt">911, qual é a sua emergência?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">I need an ambulance. My husband is having chest pains and he's having trouble breathing.</div>
+        <div class="pt">Preciso de uma ambulância. Meu marido está com dores no peito e dificuldade para respirar.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar op">911</div>
+      <div class="bubble">
+        <div class="en">Okay, help is on the way. What is your location?</div>
+        <div class="pt">Certo, ajuda está a caminho. Qual é a sua localização?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">We're at the Hilton Hotel on Main Street. Room 412, fourth floor.</div>
+        <div class="pt">Estamos no Hilton Hotel na Main Street. Quarto 412, quarto andar.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar op">911</div>
+      <div class="bubble">
+        <div class="en">Is he conscious? Is he able to talk?</div>
+        <div class="pt">Ele está consciente? Consegue falar?</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar you">You</div>
+      <div class="bubble">
+        <div class="en">Yes, he's conscious but he's in a lot of pain and sweating heavily.</div>
+        <div class="pt">Sim, está consciente, mas com muita dor e suando muito.</div>
+      </div>
+    </div>
+    <div class="line">
+      <div class="avatar op">911</div>
+      <div class="bubble">
+        <div class="en">Keep him calm, don't let him move, and loosen any tight clothing. Paramedics should be there in about five minutes. Stay on the line with me.</div>
+        <div class="pt">Mantenha-o calmo, não deixe ele se mover, e afrouxe qualquer roupa apertada. Os paramédicos devem chegar em cerca de cinco minutos. Fique na linha comigo.</div>
+      </div>
+    </div>
+  </div>
 
-// ─── BUTTONS ─────────────────────────────────────────────────────────────────
-document.getElementById('btnStart').addEventListener('click', () => {
-  document.getElementById('overlayStart').classList.add('hidden');
-  initGame();
-});
-document.getElementById('btnRestart').addEventListener('click', () => {
-  document.getElementById('overlayOver').classList.add('hidden');
-  initGame();
-});
+  <div class="block cultural">
+    <h4>Números de Emergência ao Redor do Mundo</h4>
+    <p><strong>EUA e Canadá:</strong> 911 &nbsp;•&nbsp; <strong>Reino Unido:</strong> 999 &nbsp;•&nbsp; <strong>Europa (geral):</strong> 112 &nbsp;•&nbsp; <strong>Austrália:</strong> 000 &nbsp;•&nbsp; <strong>Japão:</strong> 119 (ambulância) / 110 (polícia). Em muitos países, <strong>112</strong> funciona mesmo de celulares bloqueados. Salve esses números no seu telefone antes de viajar.</p>
+  </div>
+</section>
+<div class="sep"><span class="dot"></span></div>
+<!-- ██████ SEÇÃO 16 ██████ -->
+<section class="section" id="s16">
+  <div class="section-tag amber"><span class="n">16</span> Insurance & Costs</div>
+  <h2>Seguro Saúde, Custos e Reembolso</h2>
+  <p class="section-sub">Como se proteger financeiramente e conseguir o reembolso que você merece.</p>
 
-// ─── RESIZE ──────────────────────────────────────────────────────────────────
-window.addEventListener('resize', () => {
-  if (!running) { resize(); draw(); }
-});
+  <p class="section-intro">
+    Atendimento médico no exterior — especialmente nos EUA — pode ser extremamente caro. Saber comunicar sobre seguro, pedir recibos adequados e entender os termos financeiros é tão importante quanto saber descrever os sintomas.
+  </p>
 
-// initial draw
-draw();
-</script>
-</body>
-</html>
+  <div class="group">
+    <div class="group-title">Comunicando que tem seguro</div>
+
+    <div class="card">
+      <div class="en">"I have travel health insurance. Here's my insurance card and policy number."</div>
+      <div class="pt">Tenho seguro saúde de viagem. Aqui está meu cartão do seguro e número da apólice.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"My insurance requires pre-authorization. Can I call them first?"</div>
+      <div class="pt">Meu seguro exige pré-autorização. Posso ligar para eles primeiro?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Does this hospital / clinic work directly with international insurance companies?"</div>
+      <div class="pt">Esse hospital / clínica trabalha diretamente com seguradoras internacionais?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I'll pay out of pocket and submit the claim to my insurance later."</div>
+      <div class="pt">Vou pagar do meu bolso e enviar o pedido de reembolso ao seguro depois.</div>
+      <div class="note blue"><strong>"Out of pocket"</strong> = do próprio bolso, sem cobertura. <strong>"Submit a claim"</strong> = enviar pedido de reembolso.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Pedindo documentos para reembolso</div>
+
+    <div class="card">
+      <div class="en">"I need an itemized bill with all charges listed separately."</div>
+      <div class="pt">Preciso de uma conta detalhada com todas as cobranças listadas separadamente.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Could I get a medical report / doctor's note describing the diagnosis and treatment?"</div>
+      <div class="pt">Poderia me fornecer um relatório médico / atestado descrevendo o diagnóstico e tratamento?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I also need copies of any lab results or imaging reports."</div>
+      <div class="pt">Também preciso de cópias dos resultados de exames ou laudos de imagem.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can I get all documents in English and with the hospital's official stamp?"</div>
+      <div class="pt">Posso receber todos os documentos em inglês e com o carimbo oficial do hospital?</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Entendendo os custos</div>
+
+    <div class="card">
+      <div class="en">"How much will this visit cost?"</div>
+      <div class="pt">Quanto vai custar essa consulta?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Is there a self-pay discount?"</div>
+      <div class="pt">Tem desconto para pagamento particular?</div>
+      <div class="note green">Muitos hospitais e clínicas nos EUA oferecem desconto significativo (até 40-50%) para quem paga na hora sem seguro. Sempre pergunte.</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"Can I set up a payment plan?"</div>
+      <div class="pt">Posso parcelar o pagamento?</div>
+    </div>
+
+    <div class="card">
+      <div class="en">"I think there's an error on my bill. This charge doesn't look right."</div>
+      <div class="pt">Acho que tem um erro na minha conta. Essa cobrança não parece correta.</div>
+    </div>
+  </div>
+
+  <div class="vocab">
+    <div class="vocab-item"><div class="en">copay / co-payment</div><div class="pt">co-participação</div></div>
+    <div class="vocab-item"><div class="en">deductible</div><div class="pt">franquia</div></div>
+    <div class="vocab-item"><div class="en">coverage</div><div class="pt">cobertura</div></div>
+    <div class="vocab-item"><div class="en">claim / file a claim</div><div class="pt">pedido / abrir um pedido de reembolso</div></div>
+    <div class="vocab-item"><div class="en">out-of-pocket</div><div class="pt">do próprio bolso</div></div>
+    <div class="vocab-item"><div class="en">pre-authorization</div><div class="pt">pré-autorização</div></div>
+    <div class="vocab-item"><div class="en">itemized bill</div><div class="pt">conta detalhada</div></div>
+    <div class="vocab-item"><div class="en">reimbursement</div><div class="pt">reembolso</div></div>
+  </div>
+
+  <div class="block tip">
+    <h4>Dica de Ouro Final</h4>
+    <p>Antes de viajar: (1) tenha seu seguro viagem com cobertura médica de pelo menos US$100.000 para os EUA; (2) salve no celular os telefones da seguradora, seu número de apólice e uma lista de medicamentos e alergias em inglês; (3) tire foto do seu passaporte e documentos médicos. Na hora da emergência, você não vai querer procurar essas informações.</p>
+  </div>
+</section>
+<!-- ════════════════ FOOTER ════════════════ -->
+<div class="sep"><span class="dot"></span></div>
+<footer class="footer">
+  <div class="footer-brand">Pharmacy & Medical Emergencies — English for Travelers</div>
+  <p class="footer-text">
+    Conteúdo exclusivo para fins educacionais.<br>
+    Desenvolvido com excelência para alunos que buscam comunicação internacional de alto nível.
+  </p>
+</footer>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p></main>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<!-- ════════════════ JS ════════════════ -->
